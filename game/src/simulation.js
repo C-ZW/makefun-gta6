@@ -15,11 +15,11 @@ export function choose(branch){
  s.reportTime=0;s.branch=branch;s.phase='run';s.wanted=true;s.mode='play';ping(660);
  say(branch==='air'?'NIX  /  Union opened the striped yard gate.':'VALE  /  Cash at the east ferry. Come alone.',5);
 }
-export function interact(){
+export function interact(vehicleOnly=false){
  if(s.mode!=='play')return;
- if(s.phase==='drop'&&dist(actor(),destination())<22){
+ if(!vehicleOnly&&s.phase==='drop'&&dist(actor(),destination())<22){
  if(Math.abs(actor().v||0)>10)return say('Brake to hand over the reel.');
- s.phase='done';s.cash+=s.branch==='air'?80:900;ping(880);
+ s.phase='done';s.deliveryTime=s.clock;s.cash+=s.branch==='air'?80:900;ping(880);
  say(s.branch==='air'?'ON AIR  /  Every dock hears the stolen payroll tape.':'PAID IN FULL  /  The last ferry takes the only copy.',8);save(false);return;
  }
  if(s.ride!==null){
@@ -88,9 +88,19 @@ function patrol(dt){
  if(s.heat==='clear'&&dist(c,goal)<5)c.next=((c.next??1)+1)%4;
  if(s.heat==='search'&&dist(c,goal)<9){c.a+=dt*.85;c.v=0}
  else {
- let aim=patrolTarget(c,goal),a=Math.atan2(aim.y-c.y,aim.x-c.x);
+ let aim=patrolTarget(c,goal);
+ // The cruiser follows the street up to an alley mouth before taking the tight turn.
+ const streetX=streetsX.reduce((x,n)=>Math.abs(n-c.x)<Math.abs(x-c.x)?n:x);
+ const streetY=streetsY.reduce((y,n)=>Math.abs(n-c.y)<Math.abs(y-c.y)?n:y);
+ const onEW=Math.abs(c.y-streetY)<15,onNS=Math.abs(c.x-streetX)<15;
+ if(s.heat==='chase'&&sight(c,goal)){
+ if(onEW&&!onNS&&Math.abs(goal.y-streetY)>24&&Math.abs(c.x-goal.x)>8)aim={x:goal.x,y:c.y};
+ if(onNS&&!onEW&&Math.abs(goal.x-streetX)>24&&Math.abs(c.y-goal.y)>8)aim={x:c.x,y:goal.y};
+ }
+ let a=Math.atan2(aim.y-c.y,aim.x-c.x);
  c.a+=clamp(angleDiff(a,c.a),-dt*1.7,dt*1.7);
  let speed=s.heat==='chase'?clamp(20+d*.17,20,39):s.heat==='search'?19:12;
+ if(!onEW&&!onNS)speed*=.65;
  c.v+=(speed-c.v)*Math.min(1,dt*3);
  if(Math.abs(angleDiff(a,c.a))<1.25)move(c,Math.cos(c.a)*c.v*dt,Math.sin(c.a)*c.v*dt,3);
  }
@@ -104,7 +114,8 @@ export function retry(){
 export function shove(){
  if(s.ride!==null||s.mode!=='play'||s.shove>0)return;
  s.shove=.55;let w=walkers.find(w=>dist(w,s.foot)<12);
- if(w){w.flee=5;s.wanted=true;say('Disturbance reported on the quay.');ping(125)}
+ if(w){let a=Math.atan2(w.y-s.foot.y,w.x-s.foot.x);move(w,Math.cos(a)*3,Math.sin(a)*3,1);
+ w.dir=w.x>=s.foot.x?1:-1;w.stagger=.45;w.flee=5;s.wanted=true;say('Disturbance reported on the quay.');ping(125)}
 }
 export function tick(dt){
  if(s.mode!=='play')return;s.clock+=dt;s.msgTime-=dt;s.shove=Math.max(0,s.shove-dt);
@@ -119,7 +130,9 @@ export function tick(dt){
  let p=c.route[c.next],d=dist(c,p);if(d<1){c.next=(c.next+1)%4;return}
  c.a=Math.atan2(p.y-c.y,p.x-c.x);c.x+=Math.cos(c.a)*dt*c.cruise;c.y+=Math.sin(c.a)*dt*c.cruise;
  });
- for(let w of walkers){w.flee=Math.max(0,(w.flee||0)-dt);w.x+=w.dir*(w.flee?13:2.4)*dt;if(w.x<w.origin||w.x>w.origin+160)w.dir=(w.x<w.origin?1:-1)}
+ for(let w of walkers){w.stagger=Math.max(0,(w.stagger||0)-dt);
+ if(s.ride!==null&&Math.abs(actor().v)>13&&dist(w,actor())<15){w.flee=2;w.dir=w.x>=actor().x?1:-1}
+ w.flee=Math.max(0,(w.flee||0)-dt);w.x+=w.dir*(w.flee?13:2.4)*dt;if(w.x<w.origin||w.x>w.origin+160)w.dir=(w.x<w.origin?1:-1)}
  s.trail=s.trail.filter(p=>s.clock-p.t<8);patrol(dt);
 }
 reset();

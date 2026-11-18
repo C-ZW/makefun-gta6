@@ -1,8 +1,8 @@
 // Soundings are in street metres. Quay Road follows the northern seawall.
 export const streetsX=[0,220,440,660], streetsY=[0,180,360,540];
 export const blocks=[], buildings=[], props=[], walkers=[], vehicles=[];
-export const home={x:92,y:-13}, air={x:6,y:365}, ferry={x:649,y:-8};
-export const gate={x:329,y:88,w:6,d:33};
+export const home={x:92,y:-13}, air={x:6,y:422}, ferry={x:649,y:-8};
+export const gate={x:329,y:77,w:6,d:38};
 export const dist=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
 export const clamp=(x,a,b)=>Math.max(a,Math.min(b,x));
 let seed=934;
@@ -27,6 +27,7 @@ for(let j=0;j<3;j++)for(let i=0;i<3;i++){
  for(let k=0;k<3;k++)walkers.push({x:x+random()*155,y:y-4,origin:x,t:random()*6,dir:k%2?1:-1,color:['#e4b346','#b65752','#60ada7'][k]});
  props.push({type:'crate',x:x+12,y:y+64},{type:'crate',x:x+21,y:y+66});
 }
+for(let i=0;i<8;i++)walkers.push({x:125+i*68,y:-19,origin:64+i*68,t:i,dir:i%2?1:-1,color:['#d78b56','#ead3a2','#4a8381'][i%3]});
 for(let i=-2;i<18;i++)props.push({type:'bollard',x:i*42,y:-29});
 for(let i=0;i<4;i++)props.push({type:'crane',x:8+i*188,y:-46});
 export function car(x,y,a,color,kind='traffic'){return {x,y,a,color,kind,v:0,vx:0,vy:0,steer:0};}

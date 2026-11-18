@@ -13,3 +13,15 @@ export function mix(v,heat,t,active){
  siren.frequency.setTargetAtTime(490+170*Math.sin(t*5),at,.04);
  sg.gain.setTargetAtTime(on&&heat==='chase'?.024:0,at,.1);
 }
+// The pirate station's four-bar ident, played on a lightly detuned electric key.
+let priorBeat=-1;
+export function station(time,playing,onAir){
+ if(!ctx||mute||!playing){priorBeat=-1;return}
+ let beat=Math.floor(time/.37);if(beat===priorBeat)return;priorBeat=beat;
+ const phrase=[0,0,67,0,63,0,0,65,0,0,70,0,67,0,63,0];
+ let note=phrase[beat%16];if(beat%8===0)note=[46,43,39,41][Math.floor(beat/8)%4];
+ if(!note||(!onAir&&beat%4!==0))return;
+ let [o,g]=voice('triangle',440*Math.pow(2,(note-69)/12)),at=ctx.currentTime;
+ g.gain.setValueAtTime(0,at);g.gain.linearRampToValueAtTime(onAir?.039:.018,at+.018);
+ g.gain.exponentialRampToValueAtTime(.0001,at+.49);o.stop(at+.51);
+}

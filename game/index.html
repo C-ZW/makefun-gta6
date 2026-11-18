@@ -2,13 +2,7 @@
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Low Tide FM · Port Sable</title><link rel="icon" href="data:,"><link rel="stylesheet" href="./style.css"></head>
 <body><canvas id="city" aria-label="Port Sable harbor district"></canvas>
-<div id="hud">
-<header><div class="station"><span class="logo">≋</span><div><b>LOW TIDE <i>FM</i></b><small>PORT SABLE PIRATE RADIO</small></div></div><div id="band">88.6 <i>MHz</i></div></header>
-<section id="job"><small id="chapter"></small><strong id="task"></strong><span id="hint"></span></section>
-<div id="heat"></div><aside id="map"><div class="cap"><b>PORT SABLE</b><span>N ↑</span></div><canvas width="220" height="152" id="radar"></canvas><div class="cap lower"><span id="area"></span><span>◈</span></div></aside>
-<div id="radio" role="status"></div>
-<section id="dial"><small id="machine"></small><div><b id="speed"></b><span id="unit"></span></div><div class="ruler"></div></section>
-<div id="actions"></div>
-</div>
+<canvas hidden width="220" height="152" id="radar"></canvas>
+<div id="status" role="status" class="sr"></div>
 <main id="overlay"></main>
 <script type="module" src="./src/main.js"></script></body></html>

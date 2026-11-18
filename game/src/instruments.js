@@ -1,5 +1,4 @@
-import {actor,s,destination} from './simulation.js';
-import {vehicles,dist} from './district.js';
+import {s} from './simulation.js';
 // Radio fascia, folded chart and dash are painted into the same frame as the harbor.
 export function paintInstruments(g,radar,info){
  const w=innerWidth,h=innerHeight,u=Math.max(.76,Math.min(1.1,w/1180,h/690)),ww=w/u,hh=h/u;
