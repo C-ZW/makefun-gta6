@@ -28,7 +28,7 @@ export function updatePolice(s,dt){
   const d=distance(c,player),bearing=Math.atan2(player.y-c.y,player.x-c.x),angle=Math.abs(Math.atan2(Math.sin(bearing-c.a),Math.cos(bearing-c.a)));
   c.sees=p.wanted>0&&!sheltered&&d<360&&(p.mode==='pursuit'||d<130||angle<1.2)&&lineClear(c,player);
   if(c.sees)seen=true;
-  if(p.mode==='pursuit'){navigate(c,player,dt,140+p.wanted*7);if(d<50&&(!s.car||Math.abs(s.car.speed)<30)){s.health-=dt*3;}if(d<38&&s.car){moveBody(c,-Math.cos(c.a)*35*dt,-Math.sin(c.a)*35*dt,18);}}
+  if(p.mode==='pursuit'){navigate(c,player,dt,115+p.wanted*7);if(d<50&&(!s.car||Math.abs(s.car.speed)<30)){s.health-=dt*3;}if(d<38&&s.car){moveBody(c,-Math.cos(c.a)*35*dt,-Math.sin(c.a)*35*dt,18);}}
   else if(p.mode==='search'){const t=p.remaining>9?p.last:{x:nearestRoad(p.last.x)+Math.sin(s.time*.6+c.route)*75,y:nearestRoad(p.last.y)+Math.cos(s.time*.6+c.route)*75};navigate(c,t,dt,65);if(distance(c,t)<80)c.a+=dt*.9;}
   else{const corners=[{x:740,y:740},{x:1620,y:740},{x:1620,y:1620},{x:740,y:1620}];if(distance(c,corners[c.route])<30)c.route=(c.route+1)%4;navigate(c,corners[c.route],dt,48);}
  }
