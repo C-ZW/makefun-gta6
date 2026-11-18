@@ -68,6 +68,7 @@ export function renderCity(s,dt){
  items.sort((a,b)=>a.y-b.y);for(const item of items)item.draw();
  renderMarker(target(s),s.stage==='meet'?'IVO / F':s.stage==='steal'?'THE TAPE / E':s.stage==='deliver'?(s.branch==='broadcast'?'RADIO PELICAN / F':'SABLE / F'):'QUAY CUSTOMS / F',s);
  if(s.police.mode==='search'){const p=s.police.last;ellipse(p.x,p.y,38,24,'#f6ce7933');label('LAST SEEN',p.x,p.y,10,'#f5ce8a',12);}
+ if(s.time<(s.clearUntil||0))renderMarker(s.player,'ALL CLEAR / FREE ROAM',s,'#a5f0ca');
  for(const b of s.bullets){line(b.x,b.y,b.tx,b.ty,'#fff4a5',2,16);ellipse(b.x,b.y,9,7,'#ffcc73',16);if(b.hit)ellipse(b.tx,b.ty,8,8,'#ffe7a7',15);}
  const tint=ctx.createLinearGradient(0,0,w,h);tint.addColorStop(0,'#ffba6314');tint.addColorStop(1,'#123b4b12');ctx.fillStyle=tint;ctx.fillRect(0,0,w,h);
  if(!s.car&&!s.paused){const m=project(s.aim.x,s.aim.y);ctx.strokeStyle='#fff5d0';ctx.lineWidth=1;ctx.beginPath();ctx.arc(m.x,m.y,7,0,Math.PI*2);ctx.moveTo(m.x-13,m.y);ctx.lineTo(m.x-4,m.y);ctx.moveTo(m.x+4,m.y);ctx.lineTo(m.x+13,m.y);ctx.stroke();}

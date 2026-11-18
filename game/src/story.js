@@ -9,7 +9,7 @@ export function interact(s){
  if(s.stage==='deliver'&&distance(s.player,landmarks[s.branch])<105){
   if(s.car!==s.cars[0]){radio(s,'The tape is still in the Cormorant. Bring the marked van.');return;}
   s.delivered=true;s.stage='escape';s.money+=s.branch==='broadcast'?600:1800;
-  if(s.branch==='sell'){reportCrime(s,2);s.roadblocks=true;radio(s,'SABLE / Money sent. Bad news: I sold your plate too. Barricades are up.');}
+  if(s.branch==='sell'){reportCrime(s,2);s.roadblocks=true;radio(s,'SABLE / I sold your plate too. Barricade west of the marina! A Riptide GT waits near Palm Court.');}
   else radio(s,'PELICAN / You are live, South Quay! Green courtyards will hide you on foot. Searches now last 9 seconds.');
   tone(880,.5);return;
  }
