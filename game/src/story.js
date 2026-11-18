@@ -15,4 +15,4 @@ export function interact(s){
  }
  if(distance(s.player,landmarks.garage)<90&&s.police.wanted===0){if(s.money>=100){s.money-=100;s.health=100;if(s.car)s.car.hp=100;radio(s,'QUAY CUSTOMS / Patched up. You look brand new.');}else radio(s,'QUAY CUSTOMS / Repairs cost $100.');}
 }
-export function updateStory(s){if(s.stage==='escape'&&s.police.mode==='clear'){s.stage='done';s.completed=s.branch;radio(s,s.branch==='broadcast'?'DEAD AIR / COMPLETE — The harbor heard the truth. Courtyards remain open. Free roam unlocked.':'DEAD AIR / COMPLETE — You bought your freedom. The city paid the price. Free roam unlocked.');}}
+export function updateStory(s){if(s.stage==='escape'&&s.police.mode==='clear'&&s.escaped){s.stage='done';s.completed=s.branch;radio(s,s.branch==='broadcast'?'DEAD AIR / COMPLETE — The harbor heard the truth. Courtyards remain open. Free roam unlocked.':'DEAD AIR / COMPLETE — You bought your freedom. The city paid the price. Free roam unlocked.');}}

@@ -14,7 +14,7 @@ export const vehicleTypes=[{name:'MISTRAL COUPE',color:'#ed815c',length:57,width
 export function vehicle(x,y,a,type=0){return {x,y,a,type,speed:0,hp:100,...vehicleTypes[type],ai:false,stolen:false};}
 export function createDistrict(){
  const cars=[vehicle(354,740,0,2),vehicle(260,820,-Math.PI/2,0),vehicle(780,690,Math.PI/2,3),vehicle(1200,1610,0,1)];
- for(let i=0;i<17;i++){const horizontal=i%2===0,road=roads[i%5],c=vehicle(horizontal?180+i*119:road+22,horizontal?road+22:180+i*113,horizontal?0:Math.PI/2,i%4);c.ai=true;c.axis=horizontal?'x':'y';c.speed=50+i%4*12;cars.push(c);}
+ for(let i=0;i<17;i++){const horizontal=i%2===0,road=roads[i%5],c=vehicle(horizontal?180+i*119:road+22,horizontal?road+22:180+i*113,horizontal?0:Math.PI/2,i%4);c.ai=true;c.axis=horizontal?'x':'y';if(Math.hypot(c.x-300,c.y-740)<180)c[c.axis]+=300;c.speed=50+i%4*12;cars.push(c);}
  const people=Array.from({length:46},(_,i)=>({x:roads[i%5]+(i%2?67:-67),y:180+(i*149)%2010,dir:i%2?1:-1,color:['#f18171','#fff0b8','#499ea7','#85556b','#cbe4c0'][i%5],panic:0,hp:3}));
  return {cars,people};
 }

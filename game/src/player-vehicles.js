@@ -15,14 +15,14 @@ export function updatePlayer(s,input,dt){
   const dx=Math.cos(c.a)*c.speed*dt,dy=Math.sin(c.a)*c.speed*dt;
   if(moveBody(c,dx,dy,20)){if(Math.abs(c.speed)>65){c.hp-=Math.abs(c.speed)*.025;tone(65,.15,'sawtooth');}c.speed*=-.25;}
   if(brake&&Math.abs(c.speed)>70){s.skids.push({x:c.x,y:c.y,a:c.a,life:8});}
-  for(const o of s.cars){if(o!==c&&distance(c,o)<43){const impact=Math.abs(c.speed);c.speed*=-.3;c.hp-=impact*.008;o.speed*=.4;moveBody(c,-Math.cos(c.a)*8,-Math.sin(c.a)*8,18);}}
+  for(const o of s.cars){const d=distance(c,o);if(o!==c&&d<43){const nx=(o.x-c.x)/(d||1),ny=(o.y-c.y)/(d||1);moveBody(o,nx*(44-d),ny*(44-d),18);if(s.time>(c.impactUntil||0)){const impact=Math.abs(c.speed);c.speed*=.55;c.hp-=impact*.008;c.impactUntil=s.time+.4;tone(65,.08,'triangle');}o.speed=Math.max(30,o.speed*.8);}}
   if(s.roadblocks&&Math.abs(c.y-1620)<28&&c.x>1850&&c.x<1950){c.speed*=-.4;c.hp-=dt*10;}
   s.player.x=c.x;s.player.y=c.y;s.player.a=c.a;if(c.hp<=0){s.car=null;c.hp=0;s.player.y+=48;radio(s,'Engine wrecked. Find another ride. The tape stays in the van.');if(c===s.cars[0]&&s.stage==='deliver'){c.hp=35;radio(s,'IVO / Backup ignition online. The Cormorant can still limp to the drop.');}}
  }else{
   let dx=(k.has('d')||k.has('arrowright')?1:0)-(k.has('a')||k.has('arrowleft')?1:0),dy=(k.has('s')||k.has('arrowdown')?1:0)-(k.has('w')||k.has('arrowup')?1:0);const len=Math.hypot(dx,dy)||1;const speed=k.has('shift')?160:110;moveBody(s.player,dx/len*speed*dt,dy/len*speed*dt);s.player.walk=Math.hypot(dx,dy);s.player.a=Math.atan2(input.world.y-s.player.y,input.world.x-s.player.x);
  }
  s.cooldown-=dt;if(input.firing&&s.cooldown<=0&&!s.car){s.cooldown=.24;fire(s,input.world);}
- if(s.health<=0){s.health=100;s.money=Math.max(0,s.money-150);s.player.x=300;s.player.y=1620;s.car=null;s.police.wanted=0;s.police.mode='clear';radio(s,'BUSTED / $150 impound fee. The tape is where you left it.');}
+ if(s.health<=0){s.health=100;s.money=Math.max(0,s.money-150);s.player.x=300;s.player.y=1620;s.car=null;s.police.wanted=0;s.police.mode='clear';s.escaped=false;if(s.stage==='escape'){s.stage='deliver';s.delivered=false;s.money=Math.max(0,s.money-(s.branch==='broadcast'?600:1800));}radio(s,'BUSTED / $150 impound fee. Recover the van and retry the delivery.');}
 }
 function fire(s,aim){
  const a=Math.atan2(aim.y-s.player.y,aim.x-s.player.x),end={x:s.player.x+Math.cos(a)*520,y:s.player.y+Math.sin(a)*520};
