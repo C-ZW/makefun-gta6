@@ -1,3 +1,4 @@
+import {paintInstruments} from './instruments.js';
 import {draw} from './harbor.js';
 import {s,actor,keys,tick,start,choose,interact,save,resumeSave,retry,reset,shove,say,destination} from './simulation.js';
 import {wake,mix,toggle} from './sound.js';
@@ -49,11 +50,13 @@ function hud(){
  let h=$('heat');h.className=s.heat==='chase'?'hot':s.heat==='search'?'search':'';
  h.textContent=s.heat==='chase'?(s.pin>1?'■  BOXED IN · MOVE!':'●  PATROL  /  IN PURSUIT'):s.heat==='search'?'◌  SEARCHING  /  '+Math.ceil(s.timer)+'s':'○  CHANNEL CLEAR';
  $('machine').textContent=driving?s.ride===0?'KESTREL / SPORT':'HARBOR SEDAN':'NIX’S COURIER';
- $('speed').textContent=driving?String(Math.round(Math.abs(p.v)*1.48)).padStart(2,'0'):'Foot';$('unit').textContent=driving?'KM/H':'PATROL';
+ $('speed').textContent=driving?String(Math.round(Math.abs(p.v)*1.48)).padStart(2,'0'):'Foot';$('unit').textContent=driving?'KM/H':'';
  $('area').textContent=p.y<53?'QUAY ROAD':p.x>510?'EAST FERRY':p.y>310?'UNION WARD':'SALT YARDS';
  $('radio').textContent=s.msgTime>0?s.msg:'';
  $('actions').textContent=s.phase==='drop'&&dist(p,destination())<22?'F   HAND OVER REEL':!driving&&vehicles.some(c=>dist(c,p)<16)?'F   TAKE THE WHEEL':driving?'W/S  THROTTLE/BRAKE   ·   A/D  STEER   ·   SPACE  SLIDE':'WASD  WALK   ·   SHIFT  RUN   ·   F  TAKE CAR';
  minimap();
+ const info={};for(const id of ['chapter','task','hint','heat','area','machine','speed','unit','actions'])info[id]=$(id).textContent;
+ paintInstruments($('city').getContext('2d'),$('radar'),info);
 }
 let last=performance.now();
 function frame(now){let dt=Math.min(.09,(now-last)/1000);last=now;for(let n=0;n<3;n++)tick(dt/3);draw(dt);menus();if(s.mode==='play')hud();mix(s.ride===null?null:actor().v,s.heat,s.clock,s.mode==='play');requestAnimationFrame(frame)}

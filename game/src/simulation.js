@@ -12,7 +12,7 @@ export function reset(){
 export function say(text,seconds=4){s.msg=text;s.msgTime=seconds}
 export function start(){s.mode='play';say('Nix left the reel in the orange Kestrel.',5)}
 export function choose(branch){
- s.branch=branch;s.phase='run';s.wanted=true;s.mode='play';ping(660);
+ s.reportTime=0;s.branch=branch;s.phase='run';s.wanted=true;s.mode='play';ping(660);
  say(branch==='air'?'NIX  /  Union opened the striped yard gate.':'VALE  /  Cash at the east ferry. Come alone.',5);
 }
 export function interact(){
@@ -77,12 +77,14 @@ function patrolTarget(c,p){
 }
 function patrol(dt){
  const c=s.cop,p=actor(),d=dist(c,p),bearing=Math.atan2(p.y-c.y,p.x-c.x);
- const seen=s.wanted&&d<(s.heat==='chase'?112:91)&&sight(c,p)&&(s.heat==='chase'||d<40||Math.abs(angleDiff(bearing,c.a))<1.13);
+ const seen=s.wanted&&d<(s.heat==='chase'?112:91)&&sight(c,p)&&(s.heat==='chase'||d<40||Math.abs(angleDiff(bearing,c.a+(s.heat==='search'?Math.sin(s.clock*2.5)*.45:0)))<1.13);
  if(seen){s.last={x:p.x,y:p.y};s.blind=0;if(s.heat!=='chase'){say(s.heat==='search'?'PATROL  /  Visual regained!':'PATROL  /  Orange channel, visual contact!');ping(270)}s.heat='chase'}
  else if(s.heat==='chase'&&(s.blind+=dt)>.85){s.heat='search';s.timer=10;say('DISPATCH  /  Lost visual. Sweep the last corner.');ping(410)}
  if(s.heat==='search'&&(s.timer-=dt)<=0){s.heat='clear';s.wanted=false;s.pin=0;if(s.phase==='run')s.phase='drop';say('DISPATCH  /  Call off the sweep. Channel clear.');ping(830)}
+ if(s.phase==='run'&&s.heat==='clear'&&s.wanted){s.reportTime=(s.reportTime||0)+dt;
+ if(s.reportTime>12&&dist(p,home)>100){s.wanted=false;s.phase='drop';say('NIX  /  No visual on the car. Bring the reel in.')}}
  const loop=[{x:2,y:-6},{x:653,y:-6},{x:653,y:174},{x:2,y:174}];
- let goal=s.heat==='clear'?loop[c.next??1]:s.heat==='chase'&&seen?p:s.last;
+ let goal=s.heat==='clear'?(s.wanted&&s.phase==='run'?home:loop[c.next??1]):s.heat==='chase'&&seen?p:s.last;
  if(s.heat==='clear'&&dist(c,goal)<5)c.next=((c.next??1)+1)%4;
  if(s.heat==='search'&&dist(c,goal)<9){c.a+=dt*.85;c.v=0}
  else {

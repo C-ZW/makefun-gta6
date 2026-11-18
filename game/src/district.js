@@ -9,9 +9,9 @@ let seed=934;
 export function random(){seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296}
 const palettes=[
  ['#da9873','#a86354','#faac78','NARROWCAST'],['#9aaba0','#608782','#d6cbaa','ICE WORKS'],
- ['#e2bb89','#b28063','#eed2a0','FERRY OFFICE'],['#74aaa6','#427f80','#add2ba','UNION HALL'],
+ ['#e2bb89','#b28063','#eed2a0','FERRY OFFICE'],['#74aaa6','#427f80','#add2ba','DRY LOFTS'],
  ['#be847c','#8e5760','#dac19b','SALT HOTEL'],['#d69b65','#9f704e','#f3c18c','NET & LINE'],
- ['#d3b590','#ab8475','#e0c7a7','DRY GOODS'],['#a8a890','#768778','#d6cf9c','SPOOL CO.'],
+ ['#d3b590','#ab8475','#e0c7a7','UNION HALL'],['#a8a890','#768778','#d6cf9c','SPOOL CO.'],
  ['#d0937e','#a26c67','#ecc3a0','PALISADE']
 ];
 for(let j=0;j<3;j++)for(let i=0;i<3;i++){
