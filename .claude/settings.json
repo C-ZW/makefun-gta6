@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(curl -sSL https://make.fun/*)",
+      "Bash(node */cli/makefun.mjs *)",
+      "Bash(codex *)"
+    ]
+  }
+}
