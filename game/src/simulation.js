@@ -77,7 +77,7 @@ function patrolTarget(c,p){
 }
 function patrol(dt){
  const c=s.cop,p=actor(),d=dist(c,p),bearing=Math.atan2(p.y-c.y,p.x-c.x);
- const seen=s.wanted&&d<(s.heat==='chase'?133:98)&&sight(c,p)&&(s.heat==='chase'||d<40||Math.abs(angleDiff(bearing,c.a))<1.13);
+ const seen=s.wanted&&d<(s.heat==='chase'?112:91)&&sight(c,p)&&(s.heat==='chase'||d<40||Math.abs(angleDiff(bearing,c.a))<1.13);
  if(seen){s.last={x:p.x,y:p.y};s.blind=0;if(s.heat!=='chase'){say(s.heat==='search'?'PATROL  /  Visual regained!':'PATROL  /  Orange channel, visual contact!');ping(270)}s.heat='chase'}
  else if(s.heat==='chase'&&(s.blind+=dt)>.85){s.heat='search';s.timer=10;say('DISPATCH  /  Lost visual. Sweep the last corner.');ping(410)}
  if(s.heat==='search'&&(s.timer-=dt)<=0){s.heat='clear';s.wanted=false;s.pin=0;if(s.phase==='run')s.phase='drop';say('DISPATCH  /  Call off the sweep. Channel clear.');ping(830)}
@@ -87,8 +87,8 @@ function patrol(dt){
  if(s.heat==='search'&&dist(c,goal)<9){c.a+=dt*.85;c.v=0}
  else {
  let aim=patrolTarget(c,goal),a=Math.atan2(aim.y-c.y,aim.x-c.x);
- c.a+=clamp(angleDiff(a,c.a),-dt*2.8,dt*2.8);
- let speed=s.heat==='chase'?clamp(24+d*.25,23,51):s.heat==='search'?19:12;
+ c.a+=clamp(angleDiff(a,c.a),-dt*1.7,dt*1.7);
+ let speed=s.heat==='chase'?clamp(20+d*.17,20,39):s.heat==='search'?19:12;
  c.v+=(speed-c.v)*Math.min(1,dt*3);
  if(Math.abs(angleDiff(a,c.a))<1.25)move(c,Math.cos(c.a)*c.v*dt,Math.sin(c.a)*c.v*dt,3);
  }
