@@ -3,6 +3,8 @@ import {sculpture,ink,seedRandom} from './geometry.js';
 import {streetsX,streetsZ,districtAt} from './districts.js';
 import {sign,glazing,asphalt} from './street-art.js';
 import {palmTree,umbrella,streetLight} from './landscaping.js';
+import {islandLandmarks} from './pier-landmarks.js';
+import {storeGlass} from './street-art.js';
 export function buildPortVela(scene){
  const s=sculpture(),r=seedRandom(6519),blocks=[],sand=0xf2c590,cream=0xffdfa9;
  const wall=[0xdf967d,0xd8ae91,0xecaf93,0x83afa6,0xc88289,0xe7cc9f,0xaca6b5];
@@ -46,6 +48,10 @@ export function buildPortVela(scene){
      s.box(x+(i-1)*w*.31,1.55,front+.08,w*.265,2.65,.14,0x36595c);
      s.box(right+.08,1.55,z+(i-1)*d*.31,.14,2.65,d*.265,0x36595c);
      s.box(left-.08,1.55,z+(i-1)*d*.31,.14,2.65,d*.265,0x36595c);
+     const cx=x+(i-1)*w*.31,cz=z+(i-1)*d*.31,v=w*.132,u=d*.132;
+     s.face([[cx-v,.25,front+.16],[cx+v,.25,front+.16],[cx+v,2.85,front+.16],[cx-v,2.85,front+.16]],0xffffff,storeGlass);
+     s.face([[right+.16,.25,cz+u],[right+.16,.25,cz-u],[right+.16,2.85,cz-u],[right+.16,2.85,cz+u]],0xffffff,storeGlass);
+     s.face([[left-.16,.25,cz-u],[left-.16,.25,cz+u],[left-.16,2.85,cz+u],[left-.16,2.85,cz-u]],0xffffff,storeGlass);
    }
    sign(s,[[left+.3,3.1,front+.46],[right-.3,3.1,front+.46],[right-.3,5.45,front+.46],[left+.3,5.45,front+.46]],k%16);
    sign(s,[[right+.46,3.1,front-.3],[right+.46,3.1,back+.3],[right+.46,5.4,back+.3],[right+.46,5.4,front-.3]],k%16);
@@ -80,6 +86,6 @@ export function buildPortVela(scene){
  // A raised causeway continues west from the quay across the lagoon.
  for(let i=0;i<9;i++){const X=-101-i*6,h=bridgeHeight(X,-96);s.box(X,h-.18,-96,6.06,.36,10,0x8e8a86,[0,0,i<3?-.145:i>5?.145:0]);for(const side of [-1,1])s.box(X,h+.5,-96+side*5,6,.75,.32,cream)}
  s.box(-158,-.48,-96,18,.7,18,sand);
- s.finish(scene);return {blocks,clear(x,z,pad=.4){return !blocks.some(b=>Math.abs(x-b.x)<b.w/2+pad&&Math.abs(z-b.z)<b.d/2+pad)},height:bridgeHeight};
+ islandLandmarks(s);s.finish(scene,true);return {blocks,clear(x,z,pad=.4){return !blocks.some(b=>Math.abs(x-b.x)<b.w/2+pad&&Math.abs(z-b.z)<b.d/2+pad)},height:bridgeHeight};
 }
 function bridgeHeight(x,z){return Math.abs(z+96)<5&&x< -98?Math.max(0,Math.min(2.6,(-98-x)*.15,(x+154)*.15)):0}

@@ -1,6 +1,8 @@
 import * as T from '../vendor/three.module.min.js';
 export function coastalSky(scene){
-  const light=new T.DirectionalLight(0xffdda5,2.25);light.position.set(-125,115,-95);scene.add(light);
+  const light=new T.DirectionalLight(0xffdda5,2.25);light.position.set(-90,105,87);scene.add(light);
+  light.castShadow=true;Object.assign(light.shadow.camera,{left:-172,right:172,top:178,bottom:-178,near:.1,far:410});
+  light.shadow.mapSize.set(2048,2048);light.shadow.bias=-.00045;light.shadow.normalBias=.055;
   const ambient=new T.HemisphereLight(0xf8e2cd,0xd7a3ad,1.55);scene.add(ambient);
   const uniforms={sun:{value:new T.Vector3(-.44,.23,-1).normalize()},night:{value:0}};
   const mat=new T.ShaderMaterial({uniforms,side:T.BackSide,depthWrite:false,fog:false,

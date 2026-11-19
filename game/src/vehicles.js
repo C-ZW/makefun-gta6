@@ -53,7 +53,11 @@ function carBody(s,i,c,police){
    if(police){const A=side*(w+.028);s.face([[A,.42,side*.87],[A,.42,-side*.87],[A,h+.008,-side*.87],[A,h+.008,side*.87]],0xffffff,badge)}
  }
  s.face([[-topW,top+.012,f],[topW,top+.012,f],[topW,top+.012,b],[-topW,top+.012,b]],police?0xe8dcb9:c);
- if(i===0){s.box(0,top+.026,(f+b)/2,topW*1.77,.025,(b-f)*.77,dark);for(let j=0;j<6;j++)s.box(0,h+.13-j*.017,l*.55+j*.095,w*1.27,.035,.042,dark)}
+ if(i===0){s.box(0,top+.026,(f+b)/2,topW*1.77,.025,(b-f)*.77,dark);
+   for(let j=1;j<=5;j++){let t=j/6;s.box(0,top*(1-t)+(h+.035)*t+.015,b+(back*l-b)*t,w*(1.51+.22*t),.035,.04,0x71878c)}
+   for(let j=0;j<7;j++)s.box(0,h+.052,l*.55+j*.074,w*1.32,.035,.041,0x354551);
+   for(const side of [-1,1])s.box(side*w*.64,h*.9,l*.973,.35,.025,.1,chrome);
+ }
  if(pick){s.box(0,h+.015,l*.54,w*1.69,.08,l*.79,dark);for(const K of [-1,1])s.box(K*w*.91,h+.17,l*.56,.13,.32,l*.80,c);s.box(0,h+.15,l*.94,w*1.82,.27,.1,c)}
  s.box(0,h*.59,l*.994,w*1.72,.23,.07,dark);
  for(const side of [-1,1]){s.box(side*w*.62,h*.67,l*1.016,w*.57,.115,.042,0xff463d,undefined,ink);s.box(side*w*.65,h*.64,-l*1.002,w*.47,.13,.045,0xffedb5,undefined,ink)}
@@ -66,7 +70,7 @@ export function spawnVehicle(scene,type,x,z,yaw=0,color=paints[type],role='parke
  const police=role==='patrol'||role==='block',key=[type,color,police].join('-');
  if(!cache.has(key)){const s=sculpture();if(type===5)bike(s,color);else carBody(s,type,color,police);cache.set(key,s.finish())}
  const model=cache.get(key).clone();scene.add(model);model.position.set(x,0,z);model.rotation.y=-yaw;
- const sc=sculpture();sc.oval(.12,.025,.12,VEHICLES[type].w*1.11,.025,VEHICLES[type].l*1.08,0x514955,undefined,ink);sc.finish(model);
+ const sc=sculpture();sc.oval(.10,.046,-.09,VEHICLES[type].w*1.09,.012,VEHICLES[type].l*1.04,0x413c44,undefined,ink);sc.finish(model);
  return {type,model,x,z,yaw,color,speed:0,slip:yaw,health:100,role,active:true};
 }
 export function poseCar(c,world){
