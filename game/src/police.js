@@ -41,7 +41,7 @@ export function islandPolice(scene,cars,world){
    }
    const desired=Math.atan2(target.x-c.x,c.z-target.z),diff=Math.atan2(Math.sin(desired-c.yaw),Math.cos(desired-c.yaw));
    c.yaw+=Math.sign(diff)*Math.min(Math.abs(diff),dt*(dist<8?2.5:1.8));
-   const max=heat.state==='SEARCHING'?5:heat.level>=3?15:11,speed=dist<2.3||distance(c,target)<1.8?0:max*(Math.abs(diff)>1?.35:1);
+   const max=heat.state==='SEARCHING'?5:heat.level>=3?15:11,speed=dist<3.1||distance(c,target)<2.4?0:max*(Math.abs(diff)>1?.35:1);
    c.speed+=(speed-c.speed)*Math.min(1,dt*1.1);
    const x=c.x+Math.sin(c.yaw)*c.speed*dt,z=c.z-Math.cos(c.yaw)*c.speed*dt;
    if(world.clear(x,z,.85)){c.x=x;c.z=z}poseCar(c,world);

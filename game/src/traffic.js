@@ -11,6 +11,8 @@ export function islandTraffic(scene){
    const car=spawnVehicle(scene,i%5,a[0]+(b[0]-a[0])*f,a[1]+(b[1]-a[1])*f,Math.atan2(b[0]-a[0],a[1]-b[1]),paints[(i+2)%6],'traffic');
    Object.assign(car,{path,node:(edge+1)%4,cruise:5+i%5,speed:4,wait:0});cars.push(car);
  }
+ for(const [type,x,z,yaw] of [[0,99.3,89,0],[1,90.4,79,Math.PI],[4,101.8,51,0],[5,90,31,Math.PI],[2,-91,-83,0]])cars.push(spawnVehicle(scene,type,x,z,yaw,paints[(type+2)%6]));
+ for(const [start,rev] of [[72,1],[33,0],[-15,1],[-80,0]]){const X=rev?93:99,Z=rev?142:-142,c=spawnVehicle(scene,rev?1:2,X,start,rev?Math.PI:0,rev?0x55a49a:0xdbad76,'traffic');c.path=[[X,Z],[rev?-92:93,Z],[rev?-92:93,-Z],[X,-Z]];c.node=0;c.cruise=7;c.speed=6;cars.push(c)}
  return cars;
 }
 export function tickTraffic(cars,p,world,dt){

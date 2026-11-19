@@ -17,9 +17,9 @@ export function airWatch(scene){
  const lens=sculpture();lens.oval(.25,-.73,-.92,.48,.28,.48,0xfffac8,undefined,ink);lens.finish(body);
  body.visible=false;return {body,update(p,heat,dt,time){
   const active=heat.level>=4,was=body.visible;body.visible=active;if(!active)return;
-  const heading=heat.state==='SEARCHING'?heat.heading:p.yaw,sx=Math.sin(heading),cz=Math.cos(heading),anchor=heat.state==='SEARCHING'?heat.center:p;
-  const offset=6+Math.sin(time*.38)*4,range=25+Math.cos(time*.21)*3;
-  const dest=new T.Vector3(anchor.x+sx*range+cz*offset,10.6+Math.sin(time*.37),anchor.z-cz*range+sx*offset);
+  const heading=heat.heading,sx=Math.sin(heading),cz=Math.cos(heading),anchor=heat.center;
+  const offset=-1.8+Math.sin(time*.38)*3,range=28+Math.cos(time*.21)*3;
+  const dest=new T.Vector3(anchor.x+sx*range+cz*offset,9.7+Math.sin(time*.37),anchor.z-cz*range+sx*offset);
   body.position.lerp(dest,was?1-Math.exp(-1.2*dt):1);body.rotation.set(.035,1.03-heading+Math.sin(time*.3)*.2,.085*Math.sin(time*.65));rotor.rotation.y+=dt*29;tr.rotation.x+=dt*38;
  }};
 }

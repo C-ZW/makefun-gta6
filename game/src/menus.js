@@ -14,7 +14,7 @@ const wordmark='<span class="brand">'+icon('sun',28)+'<b>SUNBREAK</b></span>';
 const key=(k,text)=>'<span><kbd>'+k+'</kbd> '+text+'</span>';
 function title(g){
  return `<div class="title-screen"><header>${wordmark}<span class="topline"></span><span>PORT VELA &nbsp; / &nbsp; ISLAND RADIO</span>${icon('tower',18)}</header>
- <div class="title-copy"><div class="title-edition"><i></i> A PORT VELA CRIME STORY</div><h1>Sun<span>break</span><i>.</i></h1><p>One stolen ledger. An island for sale.</p>
+ <div class="title-copy"><div class="title-edition"><i></i> A PORT VELA CRIME STORY</div><h1>Sun<span>break<i>.</i></span></h1><p>One stolen ledger. An island for sale.</p>
  <div class="title-actions">${button('story','Begin story '+icon('arrow',19),'primary')}${button('roam','Free roam','secondary')}${g.save.available()?button('load','Continue','secondary'):''}</div>
  <div class="title-links">${button('help','Controls')}${button('journal','Island journal')}</div></div>
  <div class="title-place"><div class="location-line"></div><small>${icon('pin',14)} SAFFRON STRAND</small><b>Port Vela</b><span>18:34 &nbsp; / &nbsp; GOLDEN HOUR</span></div>

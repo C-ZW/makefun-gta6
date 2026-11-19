@@ -1,5 +1,6 @@
 import * as T from '../vendor/three.module.min.js';
 import {sculpture,ink,drawingMaterial} from './geometry.js';
+import {windshield,patrolTrim} from './vehicle-finish.js';
 export const VEHICLES=[
  {name:'Marlin GT',class:'Targa sport',max:48,pull:14,turn:1.52,grip:5.4,w:2.04,l:4.55},
  {name:'Pico 3',class:'Compact',max:30,pull:9,turn:2.1,grip:7,w:1.58,l:3.12},
@@ -12,6 +13,12 @@ export const paints=[0xf28042,0x30a39b,0xd25663,0xd1c393,0x626fa2,0xb2c27d];
 const dark=0x232c39,chrome=0xc2c2ae,rubber=0x18212a;
 const plate=drawingMaterial(128,48,c=>{c.fillStyle='#ffe0a2';c.fillRect(0,0,128,48);c.textAlign='center';c.fillStyle='#9e5f51';c.font='bold 9px sans-serif';c.fillText('P O R T   V E L A',64,10);c.fillStyle='#252f37';c.font='bold 30px monospace';c.fillText('SUN•079',64,39)});
 const badge=drawingMaterial(256,64,c=>{c.fillStyle='#ebdfbd';c.fillRect(0,0,256,64);c.fillStyle='#25414d';c.textAlign='center';c.font='bold 48px sans-serif';c.fillText('POLICE',128,50)});
+const tailPanel=drawingMaterial(512,84,c=>{
+ c.fillStyle='#263d40';c.fillRect(0,0,512,84);c.fillStyle='#536266';c.fillRect(0,7,512,4);
+ for(const x of [8,362]){for(let i=0;i<9;i++){c.fillStyle=i%2?'#ef614a':'#ff8961';c.fillRect(x+i*15,19,13,35);c.fillStyle='#d33f3e';c.fillRect(x+i*15,57,13,12)}}
+ c.textAlign='center';c.fillStyle='#e6d9b4';c.font='italic bold 21px sans-serif';c.fillText('MARLIN',256,43);c.font='bold 10px monospace';c.fillText('G R A N   T U R I S M O',256,62);
+});
+const decal=drawingMaterial(256,64,c=>{c.fillStyle='#fce7b4';c.fillRect(0,0,256,64);c.fillStyle='#326960';for(let i=0;i<4;i++){c.beginPath();c.moveTo(8+i*15,64);c.lineTo(31+i*15,0);c.lineTo(39+i*15,0);c.lineTo(16+i*15,64);c.fill()}c.textAlign='center';c.font='italic 900 38px sans-serif';c.fillText('MARLIN',169,44)});
 const cache=new Map();
 function hull(s,rows,c){
  for(let i=0;i<rows.length-1;i++){
@@ -41,6 +48,8 @@ function carBody(s,i,c,police){
  const top=van?2.02:pick?1.72:compact?1.52:i===0?1.26:1.40,topW=w*(van?.92:.77);
  hull(s,[[front*l,w*.94,h-.015,h+.02],[(front+.17)*l,topW,h,top],[(back-.13)*l,topW,h,top],[back*l,w*.93,h,h+.035]],van?c:0x395461);
  const f=(front+.17)*l,b=(back-.13)*l;
+ s.face([[-w*.91,h+.046,front*l-.006],[w*.91,h+.046,front*l-.006],[topW*.97,top-.01,f-.016],[-topW*.97,top-.01,f-.016]],0xffffff,windshield);
+ if(!van&&!pick)s.face([[w*.89,h+.06,back*l+.009],[-w*.89,h+.06,back*l+.009],[-topW*.97,top-.015,b+.013],[topW*.97,top-.015,b+.013]],0xffffff,windshield);
  for(const side of [-1,1]){
    const W=side*topW*1.007,V=side*w*.942,edge=van?f+(b-f)*.38:b-.045;
    s.face([[V,h+.055,front*l+.06],[V,h+.055,van?edge:back*l-.09],[W,top-.063,edge],[W,top-.063,f+.035]],0x476775);
@@ -54,17 +63,24 @@ function carBody(s,i,c,police){
  }
  s.face([[-topW,top+.012,f],[topW,top+.012,f],[topW,top+.012,b],[-topW,top+.012,b]],police?0xe8dcb9:c);
  if(i===0){s.box(0,top+.026,(f+b)/2,topW*1.77,.025,(b-f)*.77,dark);
-   for(let j=1;j<=5;j++){let t=j/6;s.box(0,top*(1-t)+(h+.035)*t+.015,b+(back*l-b)*t,w*(1.51+.22*t),.035,.04,0x71878c)}
+   for(let j=1;j<=3;j++){let t=j/4;s.box(0,top*(1-t)+(h+.035)*t+.02,b+(back*l-b)*t,w*(1.51+.22*t),.019,.035,0x415765)}
    for(let j=0;j<7;j++)s.box(0,h+.052,l*.55+j*.074,w*1.32,.035,.041,0x354551);
    for(const side of [-1,1])s.box(side*w*.64,h*.9,l*.973,.35,.025,.1,chrome);
  }
  if(pick){s.box(0,h+.015,l*.54,w*1.69,.08,l*.79,dark);for(const K of [-1,1])s.box(K*w*.91,h+.17,l*.56,.13,.32,l*.80,c);s.box(0,h+.15,l*.94,w*1.82,.27,.1,c)}
  s.box(0,h*.59,l*.994,w*1.72,.23,.07,dark);
  for(const side of [-1,1]){s.box(side*w*.62,h*.67,l*1.016,w*.57,.115,.042,0xff463d,undefined,ink);s.box(side*w*.65,h*.64,-l*1.002,w*.47,.13,.045,0xffedb5,undefined,ink)}
- s.face([[-.26,.33,l+.052],[.26,.33,l+.052],[.26,.52,l+.052],[-.26,.52,l+.052]],0xffffff,plate);
- for(const side of [-1,1])s.tube(side*w*.65,.24,l*.99,.07,.08,.18,chrome,8,[Math.PI/2,0,0]);
+ if(i!==0)s.face([[-.26,.33,l+.052],[.26,.33,l+.052],[.26,.52,l+.052],[-.26,.52,l+.052]],0xffffff,plate);
+ for(const side of [-1,1]){s.tube(side*w*.65,.24,l*.99,.064,.072,.15,chrome,12,[Math.PI/2,0,0]);s.tube(side*w*.65,.24,l*.99+.079,.052,.052,.008,dark,12,[Math.PI/2,0,0])}
  if(i===0||i===2){for(const k of [-1,1])s.box(k*w*.62,h+.09,l*.83,.1,.24,.14,dark);s.box(0,h+.235,l*.84,w*2.03,.095,.30,c)}
- if(police){s.box(0,top+.09,.02,1.33,.1,.4,dark);for(const side of [-1,1])s.box(side*.41,top+.19,.02,.58,.17,.34,side<0?0x36aaff:0xff4155,undefined,ink)}
+ if(i===0){
+  s.face([[-w*.93,.46,l+.065],[w*.93,.46,l+.065],[w*.93,.68,l+.065],[-w*.93,.68,l+.065]],0xffffff,tailPanel);
+  s.box(0,.36,l+.032,w*1.88,.035,.068,0xa79d95);s.box(0,h+.289,l*.84,w*1.89,.014,.042,0xffdda0);
+  for(const side of [-1,1]){const X=side*w*1.017;s.face([[X,.398,side*l*.52],[X,.398,-side*l*.50],[X,.57,-side*l*.50],[X,.57,side*l*.52]],0xffffff,decal);
+   s.box(side*w*.64,h+.035,-l*.48,.09,.012,l*.55,0xffe2ab,[.055,0,0])}
+  s.face([[-.245,.29,l+.072],[.245,.29,l+.072],[.245,.449,l+.072],[-.245,.449,l+.072]],0xffffff,plate);
+ }
+ if(police){patrolTrim(s,w,l,h);s.box(0,top+.09,.02,1.33,.1,.4,dark);for(const side of [-1,1])s.box(side*.41,top+.19,.02,.58,.17,.34,side<0?0x36aaff:0xff4155,undefined,ink)}
 }
 export function spawnVehicle(scene,type,x,z,yaw=0,color=paints[type],role='parked'){
  const police=role==='patrol'||role==='block',key=[type,color,police].join('-');

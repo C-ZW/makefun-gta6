@@ -4,6 +4,7 @@ import {streetsX,streetsZ,districtAt} from './districts.js';
 import {sign,glazing,asphalt} from './street-art.js';
 import {palmTree,umbrella,streetLight} from './landscaping.js';
 import {islandLandmarks} from './pier-landmarks.js';
+import {pierSignage,sailboats} from './coastal-posters.js';
 import {storeGlass} from './street-art.js';
 export function buildPortVela(scene){
  const s=sculpture(),r=seedRandom(6519),blocks=[],sand=0xf2c590,cream=0xffdfa9;
@@ -14,7 +15,10 @@ export function buildPortVela(scene){
    s.face([[x-w/2,.162,Z],[X,.162,Z-d],[X+a,.162,Z-d+b],[X+a,.162,Z+b],[x-w/2+a,.162,Z+b]],0x423448,shadow)}
  rect(0,-1.4,0,1200,1200,0x378d96);rect(0,-.32,0,263,337,sand);rect(-3,-.07,0,220,309,0xafac87);
  for(let i=0;i<450;i++){const side=i%2?1:-1;rect(side*(138+r()*220),-1.33,r()*580-290,1+r()*16,.12+r()*.3,0x80bcb4)}
- for(let i=0;i<25;i++){const a=i*.26,rad=295+r()*65;s.tube(Math.cos(a)*rad,-3,Math.sin(a)*rad,0,30+r()*85,20+r()*70,0x988fa2,6)}
+ for(let i=0;i<96;i++){const a=i*Math.PI/48,b=(i+1)*Math.PI/48,rad=346;
+  const ridge=t=>8+Math.abs(Math.sin(t*4+.7))**2*20+Math.abs(Math.sin(t*9))**4*12+Math.cos(t*17)*3;
+  s.face([[Math.cos(a)*rad,-3,Math.sin(a)*rad],[Math.cos(b)*rad,-3,Math.sin(b)*rad],[Math.cos(b)*rad,ridge(b),Math.sin(b)*rad],[Math.cos(a)*rad,ridge(a),Math.sin(a)*rad]],0x9c9eae);
+ }
  for(const x of streetsX){for(let z=-144;z<=144;z+=12)rect(x,.005,z,16.4,12,0xffffff,asphalt)}
  for(const z of streetsZ){for(let x=-96;x<=96;x+=12)rect(x,.012,z,12,16.4,0xffffff,asphalt)}
  for(const x of streetsX)for(let z=-141;z<145;z+=6){
@@ -86,6 +90,6 @@ export function buildPortVela(scene){
  // A raised causeway continues west from the quay across the lagoon.
  for(let i=0;i<9;i++){const X=-101-i*6,h=bridgeHeight(X,-96);s.box(X,h-.18,-96,6.06,.36,10,0x8e8a86,[0,0,i<3?-.145:i>5?.145:0]);for(const side of [-1,1])s.box(X,h+.5,-96+side*5,6,.75,.32,cream)}
  s.box(-158,-.48,-96,18,.7,18,sand);
- islandLandmarks(s);s.finish(scene,true);return {blocks,clear(x,z,pad=.4){return !blocks.some(b=>Math.abs(x-b.x)<b.w/2+pad&&Math.abs(z-b.z)<b.d/2+pad)},height:bridgeHeight};
+ islandLandmarks(s);pierSignage(s);sailboats(s);s.finish(scene,true);return {blocks,clear(x,z,pad=.4){return !blocks.some(b=>Math.abs(x-b.x)<b.w/2+pad&&Math.abs(z-b.z)<b.d/2+pad)},height:bridgeHeight};
 }
 function bridgeHeight(x,z){return Math.abs(z+96)<5&&x< -98?Math.max(0,Math.min(2.6,(-98-x)*.15,(x+154)*.15)):0}
