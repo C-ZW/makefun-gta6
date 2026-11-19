@@ -3,7 +3,8 @@
     "allow": [
       "Bash(curl -sSL https://make.fun/*)",
       "Bash(node */cli/makefun.mjs *)",
-      "Bash(codex *)"
+      "Bash(codex *)",
+      "Bash(node cli/makefun.mjs record * codex exec --sandbox danger-full-access *)"
     ]
   }
 }
