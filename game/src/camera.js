@@ -18,8 +18,8 @@ export function thirdPersonCamera(camera) {
       }
       this.pitch = T.MathUtils.clamp(this.pitch + input.dy*.003, -.28,.45);
       const heading = this.yaw+this.orbit;
-      const distance = car ? 9.3 + Math.min(Math.abs(car.speed)*.052,2.6) : 5.1;
-      const height = car ? 3.9 : 2.42;
+      const distance = car ? 7.4 + Math.min(Math.abs(car.speed)*.048,2.35) : 4.4;
+      const height = car ? 3.36 : 2.34;
       const shoulder = car ? .15 : .94;
       const sin = Math.sin(heading), cos = Math.cos(heading);
       const x = actor.x, z = actor.z, ground = world.height(x,z);

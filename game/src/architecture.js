@@ -7,7 +7,7 @@ export function buildFacade(batch, solids, x,z,w,d,h, color, mood, rand) {
   p('box',color,x,h*.5,z,w,h,d);
   p('box',footing,x,.55,z,w+.6,1.1,d+.6);
   solids.push({x,z,w:w*.5+.22,d:d*.5+.22});
-  p('shade',0x342749,x-h*.28,.056,z+h*.44,w+h*.1,d+h*.64,-.25,-Math.PI/2);
+  p('shade',0x342749,x-h*.28,.056,z+h*.44,w+h*.1,d+h*.64,1,-.25,-Math.PI/2);
   if (mood==='villa') {
     p('roof',0xb24e39,x,h+.75,z,w*.74,1.6,d*.76,Math.PI*.25);
     p('box',0xffdaba,x,h-.2,z,w+.8,.32,d+.8);
@@ -80,7 +80,7 @@ export function palm(batch,x,z,h,angle,variant=0) {
     const color=(variant+f)%3===0?0x8da45d:(f%2?0x477b59:0x587f53);
     p('leaf',color,x+h*.075,h+.08,z,length*.78,length,length,a,-.1+(f%3)*.19);
   }
-  p('shade',0x33253a,x-h*.41,.053,z+h*.72,1.7,h*1.45,-.54,-Math.PI/2);
+  p('shade',0x33253a,x-h*.41,.053,z+h*.72,1.7,h*1.45,1,-.54,-Math.PI/2);
 }
 
 export function lamp(batch,x,z,yaw=0) {

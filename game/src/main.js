@@ -6,6 +6,8 @@ import { buildBellcove } from './city-builder.js';
 import { cast, makeCharacter } from './characters.js';
 import { makeVehicle, vehicleCatalog } from './vehicles.js';
 import { driveVehicle, moveOnFoot, nearestVehicle } from './vehicle-handling.js';
+import { seedTraffic } from './traffic.js';
+import { populateSidewalks } from './pedestrians.js';
 
 export const gameTitle = 'Aftertide';
 
@@ -26,6 +28,8 @@ const world = buildBellcove(scene);
 const cars = Object.keys(vehicleCatalog).map((type,i)=>makeVehicle(scene,type,166.8,107+i*7.4,0,{parked:true}));
 const nearby = makeVehicle(scene,'kestrel',164.5,90,0,{parked:true});
 cars.push(nearby);
+const traffic=seedTraffic(scene,cars);
+const civilians=populateSidewalks(scene,world);
 let elapsed=0;
 const fixed = 1/60;
 function resize() {
@@ -49,7 +53,9 @@ function step(dt) {
       }
     } else {
       hero.car=nearestVehicle(hero,cars);
-      if(hero.car) { hero.car.parked=false; hero.owned.add(hero.car.type); }
+      if(hero.car) {
+        hero.car.parked=false; hero.car.lane=null; hero.owned.add(hero.car.type);
+      }
     }
   }
   cameraRig.update(dt,hero.car??hero,hero.car,world,input);
@@ -67,7 +73,12 @@ function step(dt) {
     hero.model.rig.rotation.x=.36;
     hero.model.gun.visible=false;
   }
-  cars.forEach(car=>car.sync(dt,elapsed));
+  traffic.update(dt,elapsed,hero);
+  civilians.update(dt,hero,()=>{});
+  cars.forEach(car=>{
+    car.root.visible=car===hero.car||Math.hypot(hero.x-car.x,hero.z-car.z)<157;
+    car.sync(dt,elapsed);
+  });
   atmosphere.tick(dt,camera);
   input.end();
 }
@@ -83,4 +94,4 @@ hero.model.pose(hero.x,hero.z,hero.yaw,0,0);
 cameraRig.update(fixed,hero,null,world,input);
 atmosphere.tick(fixed,camera);
 requestAnimationFrame(frame);
-window.aftertide = { step(count=1) { for(let i=0;i<count;i++) step(fixed); renderer.render(scene,camera); }, hero, scene, camera, cameraRig, atmosphere, world, input, cars, renderer };
+window.aftertide = { step(count=1) { for(let i=0;i<count;i++) step(fixed); renderer.render(scene,camera); }, hero, scene, camera, cameraRig, atmosphere, world, input, cars, renderer, traffic, civilians };
