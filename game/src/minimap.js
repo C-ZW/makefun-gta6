@@ -1,4 +1,5 @@
 import {streetsX,streetsZ,landmarks,nearest} from './districts.js';
+import {destinationPoint} from './activities.js';
 export function drawMinimap(canvas,g){
  const c=canvas.getContext('2d'),w=canvas.width,h=canvas.height,p=g.p,heat=g.police.heat,zoom=1.84;
  const X=x=>w*.5+(x-p.x)*zoom,Z=z=>h*.52+(z-p.z)*zoom;
@@ -8,7 +9,7 @@ export function drawMinimap(canvas,g){
  function line(points,color,width){c.beginPath();c.strokeStyle=color;c.lineWidth=width;c.lineJoin='round';points.forEach(([x,z],i)=>i?c.lineTo(X(x),Z(z)):c.moveTo(X(x),Z(z)));c.stroke()}
  for(const x of streetsX)line([[x,-152],[x,152]],'#e7dbc1',9);for(const z of streetsZ)line([[-103,z],[103,z]],'#e7dbc1',9);line([[-155,-96],[-93,-96]],'#e8dcbc',5);
  if(heat.level){c.fillStyle=heat.state==='SEARCHING'?'#d7664c50':'#e06c6335';c.strokeStyle='#a64d44';c.lineWidth=2;c.setLineDash([5,4]);c.beginPath();c.arc(X(heat.center.x),Z(heat.center.z),heat.radius*zoom,0,Math.PI*2);c.fill();c.stroke();c.setLineDash([])}
- const target=g.activity.target()||g.missions.target();if(target){const [x,z]=target,sx=nearest(p.x,streetsX),tx=nearest(x,streetsX),j=nearest(z,streetsZ);
+ const target=destinationPoint(g);if(target){const [x,z]=target,sx=nearest(p.x,streetsX),tx=nearest(x,streetsX),j=nearest(z,streetsZ);
   const pts=[[p.x,p.z],[sx,p.z],[sx,j],[tx,j],[tx,z],[x,z]];line(pts,'#815a26',5);line(pts,'#ffce59',3);
   const a=Math.max(9,Math.min(w-9,X(x))),b=Math.max(9,Math.min(h-9,Z(z)));c.save();c.translate(a,b);c.rotate(Math.PI/4);c.fillStyle='#ffe08a';c.strokeStyle='#795027';c.fillRect(-4.5,-4.5,9,9);c.strokeRect(-4.5,-4.5,9,9);c.restore();
  }

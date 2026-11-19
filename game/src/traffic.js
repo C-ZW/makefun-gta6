@@ -15,12 +15,12 @@ export function islandTraffic(scene){
  for(const [start,rev] of [[72,1],[33,0],[-15,1],[-80,0]]){const X=rev?93:99,Z=rev?142:-142,c=spawnVehicle(scene,rev?1:2,X,start,rev?Math.PI:0,rev?0x55a49a:0xdbad76,'traffic');c.path=[[X,Z],[rev?-92:93,Z],[rev?-92:93,-Z],[X,-Z]];c.node=0;c.cruise=7;c.speed=6;cars.push(c)}
  return cars;
 }
-export function tickTraffic(cars,p,world,dt){
+export function tickTraffic(cars,p,world,dt,people=[]){
  for(const c of cars){
   if(c.role!=='traffic'&&c.role!=='runner')continue;
   const t=c.path[c.node],dx=t[0]-c.x,dz=t[1]-c.z,dist=Math.hypot(dx,dz),fx=Math.sin(c.yaw),fz=-Math.cos(c.yaw);
   const obstacle=cars.some(o=>{if(o===c||o.role==='block'&&c.role==='runner')return false;const x=o.x-c.x,z=o.z-c.z,along=x*fx+z*fz;return along>0&&along<5&&Math.abs(x*fz-z*fx)<1.42});
-  const pedestrian=!p.car&&distance(c,p)<3;
+  const pedestrian=(!p.car&&distance(c,p)<3)||people.some(n=>{if(!n.crossing||n.health<=0)return false;const x=n.x-c.x,z=n.z-c.z,along=x*fx+z*fz;return along>0&&along<4.4&&Math.abs(x*fz-z*fx)<1.25});
   const desired=obstacle||pedestrian?0:c.cruise;c.speed+=(desired-c.speed)*Math.min(1,dt*2.7);
   if(dist<1.6){c.node=(c.node+1)%c.path.length;continue}
   const y=Math.atan2(dx,-dz);c.yaw+=Math.atan2(Math.sin(y-c.yaw),Math.cos(y-c.yaw))*Math.min(1,dt*7);

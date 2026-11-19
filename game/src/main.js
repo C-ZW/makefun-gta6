@@ -1,18 +1,20 @@
 import * as T from '../vendor/three.module.min.js';
 import {buildPortVela} from './city-builder.js';
 import {coastalSky} from './daylight.js';
+import {streetLighting} from './street-lighting.js';
 import {chaseCamera} from './camera.js';
 import {streetPlayer,enterOrExit,walkPlayer} from './on-foot.js';
+import {rideMotorbike} from './characters.js';
 import {drive} from './vehicle-handling.js';
 import {separateVehicles} from './collisions.js';
 import {tireEffects} from './driving-effects.js';
 import {islandTraffic,tickTraffic} from './traffic.js';
 import {walkingResidents,tickResidents} from './pedestrians.js';
 import {islandPolice} from './police.js';
-import {missionDirector} from './missions.js';
+import {missionDirector,MISSION_FAILURE} from './missions.js';
 import {streetCombat} from './combat.js';
 import {missionWaypoint} from './waypoints.js';
-import {islandActivities,serviceAt} from './activities.js';
+import {islandActivities,serviceAt,destinationPoint} from './activities.js';
 import {safehouse} from './safehouse.js';
 import {islandAudio} from './audio.js';
 import {STATIONS} from './radio.js';
@@ -20,10 +22,11 @@ import {districtAt,DISTRICTS} from './districts.js';
 import {dashboard} from './hud.js';
 import {menuController} from './menus.js';
 export const SUNBREAK={name:'Sunbreak',setting:'Port Vela',lead:'Inez Vale'};
+document.title=SUNBREAK.name+' — '+SUNBREAK.setting;
 const canvas=document.querySelector('#island'),renderer=new T.WebGLRenderer({canvas,antialias:true,powerPreference:'high-performance'});
 renderer.setPixelRatio(Math.min(devicePixelRatio,1.35));renderer.outputColorSpace=T.SRGBColorSpace;
 renderer.shadowMap.enabled=true;renderer.shadowMap.type=T.PCFShadowMap;renderer.shadowMap.autoUpdate=false;renderer.shadowMap.needsUpdate=true;
-const scene=new T.Scene(),camera=new T.PerspectiveCamera(59,1,.13,800),sky=coastalSky(scene),world=buildPortVela(scene),rig=chaseCamera(camera);
+const scene=new T.Scene(),camera=new T.PerspectiveCamera(59,1,.13,800),sky=coastalSky(scene),world=buildPortVela(scene),rig=chaseCamera(camera,world);
 const p=streetPlayer(scene,5.6,72),cars=islandTraffic(scene),people=walkingResidents(scene),keys=new Set(),police=islandPolice(scene,cars,world);
 const game={scene,camera,renderer,world,p,cars,people,keys,police,time:0,station:0,menu:'title',lastHit:0,
  say(who,line,seconds=7){this.dialogue={who,line,until:this.time+seconds}},
@@ -32,12 +35,12 @@ const game={scene,camera,renderer,world,p,cars,people,keys,police,time:0,station
 };
 p.crime=n=>police.heat.crime(n,p);p.notify=text=>game.notify(text);
 const combat=game.combat=streetCombat(game),missions=game.missions=missionDirector(game),activity=game.activity=islandActivities(game),save=game.save=safehouse(game),sound=game.sound=islandAudio();
-const waypoint=missionWaypoint(scene),tracks=tireEffects(scene),hud=dashboard(game),menus=menuController(game);game.open=menus.open;game.close=menus.close;
+const waypoint=missionWaypoint(scene),tracks=tireEffects(scene),lighting=streetLighting(scene),hud=dashboard(game),menus=menuController(game);game.open=menus.open;game.close=menus.close;
 let frozen=false,last=0,hudClock=0,impact=0,titleTime=0;
 function resize(){renderer.setSize(innerWidth,innerHeight);camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();document.documentElement.style.setProperty('--u',Math.min(innerWidth/1050,innerHeight/635,1.7))}
 resize();addEventListener('resize',resize);
 function recover(){
- if(missions.m.active)missions.fail('Crew down');if(p.car){p.car.role='parked';p.car.speed=0;p.car=null}p.model.visible=true;activity.active='';police.reset();
+ if(missions.m.active)missions.fail(MISSION_FAILURE.down);if(p.car){p.car.role='parked';p.car.speed=0;p.car=null}p.model.visible=true;activity.active='';police.reset();
  Object.assign(p,{x:11,z:78,health:100,armor:15,cash:Math.max(0,p.cash-75)});game.snap();game.notify('Back at the safehouse · clinic fee $75');
 }
 function tick(dt){
@@ -47,25 +50,27 @@ function tick(dt){
   const c=p.car;drive(c,keys,dt,world);Object.assign(p,{x:c.x,z:c.z,yaw:c.yaw,y:world.height(c.x,c.z)});
   if(c.health<=0){c.speed=0;enterOrExit(p,cars,world);game.notify('Engine out · find another ride');p.hurt(12)}
  }else walkPlayer(p,keys,dt,world,combat.flashing);
- tickTraffic(cars,p,world,dt);tickResidents(people,p,world,dt,game.time);police.tick(p,dt,game.time);combat.tick(dt,game.time);missions.tick(dt);activity.tick(dt);
+ tickTraffic(cars,p,world,dt,people);tickResidents(people,p,world,dt,game.time);police.tick(p,dt,game.time);combat.tick(dt,game.time);missions.tick(dt);activity.tick(dt);
  for(const c of police.units){if(c.role!=='patrol'||!police.heat.level)continue;for(const o of cars)if(o!==c&&o!==p.car&&o.active)separateVehicles(c,o,world)}
  if(p.car){const c=p.car;for(const o of cars){if(o===c||!o.active||!separateVehicles(c,o,world))continue;
   if(!impact&&Math.abs(c.speed)>6){const bump=Math.abs(c.speed)*.34;c.health=Math.max(0,c.health-bump);o.health=Math.max(0,o.health-bump*.5);c.speed*=.53;impact=1.1;if(o.duty)p.crime(2)}}
-  p.x=c.x;p.z=c.z}
+  p.x=c.x;p.z=c.z;if(c.type===5)rideMotorbike(p)}
  if(p.health<=0)recover();
  const district=districtAt(p.x,p.z);if(!p.districts.includes(district)){p.districts.push(district);if(p.districts.length>1)game.notify(DISTRICTS[district].name+' discovered')}
- waypoint(activity.target()||missions.target(),game.time);tracks(game,dt);rig.update(p,dt);
+ const point=destinationPoint(game);waypoint(point,game.time);tracks(game,dt);rig.update(p,dt);
+ if(game.destination&&serviceAt(p)===game.destination){game.destination='';game.notify('Destination reached · F to interact')}
  for(const c of cars)c.model.visible=c.active&&Math.hypot(c.x-p.x,c.z-p.z)<149;
 }
-function render(){renderer.render(scene,camera);hud()}
+function render(){lighting(game);renderer.render(scene,camera);hud()}
 function frame(now){
  const dt=Math.min(.15,(now-last)/1000);last=now;
  if(!frozen){
   if(game.menu==='title'){
-   titleTime+=dt;sky(0);camera.position.set(92+Math.sin(titleTime*.07)*1.4,3.6,77);camera.lookAt(109,8,-3);
+   titleTime+=dt;sky(0);camera.position.set(95.4+Math.sin(titleTime*.07)*.8,2.95,95.9);camera.lookAt(104,5.2,37);
+   tickTraffic(cars,p,world,dt,people);tickResidents(people,p,world,dt,titleTime);
   }else if(!game.menu){let remaining=dt;while(remaining>.0001){const step=Math.min(1/45,remaining);tick(step);remaining-=step}}
   sound.tick(game,dt);
-  if(!game.menu||game.menu==='title')renderer.render(scene,camera);
+  if(!game.menu||game.menu==='title'){lighting(game);renderer.render(scene,camera)}
   hudClock-=dt;if(hudClock<=0){hud();hudClock=.065}
  }
  requestAnimationFrame(frame);
@@ -96,7 +101,7 @@ addEventListener('keydown',e=>{
 });
 addEventListener('keyup',e=>keys.delete(e.code));
 addEventListener('blur',()=>{keys.clear();combat.trigger(false)});
-addEventListener('mousemove',e=>{if(game.menu)return;combat.setAim(e.clientX,e.clientY);if(e.buttons&2){if(p.car)rig.orbit(e.movementX,e.movementY);else p.yaw+=e.movementX*.006}});
+addEventListener('mousemove',e=>{if(game.menu)return;combat.setAim(e.clientX,e.clientY);if(e.buttons&2){if(p.car)rig.orbit(e.movementX,e.movementY);else{p.yaw+=e.movementX*.006;rig.orbit(0,e.movementY)}}});
 canvas.addEventListener('mousedown',e=>{if(!game.menu&&e.button===0){combat.setAim(e.clientX,e.clientY);combat.trigger(true)}});
 addEventListener('mouseup',()=>combat.trigger(false));addEventListener('contextmenu',e=>e.preventDefault());
 menus.render();hud();requestAnimationFrame(frame);

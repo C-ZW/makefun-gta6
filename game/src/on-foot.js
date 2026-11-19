@@ -22,5 +22,5 @@ export function walkPlayer(p,keys,dt,world,aim=false){
    if(inside(p.x+dx,p.z)&&world.clear(p.x+dx,p.z))p.x+=dx;
    if(inside(p.x,p.z+dz)&&world.clear(p.x,p.z+dz))p.z+=dz;
  }
- p.y=world.height(p.x,p.z);p.model.position.set(p.x,p.y+.04,p.z);p.model.rotation.y=-p.yaw;p.walk+=dt*pace*2.8;animateHuman(p.model,p.walk,pace,aim);
+ p.y=world.height(p.x,p.z);p.model.position.set(p.x,p.y+.04,p.z);p.model.rotation.set(0,-p.yaw,0);p.walk+=dt*pace*2.8;animateHuman(p.model,p.walk,pace,aim);
 }

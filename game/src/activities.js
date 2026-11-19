@@ -17,3 +17,5 @@ export function islandActivities(g){
  }};
 }
 export function serviceAt(p){return Object.entries(landmarks).find(([key,a])=>key!=='park'&&Math.hypot(p.x-a[0],p.z-a[1])<6)?.[0]}
+export const DESTINATIONS={home:'Safehouse',shop:'Palma Motors',race:'Strand Sprint',courier:'Night Mail'};
+export function destinationPoint(g){return g.activity.target()||g.missions.target()||landmarks[g.destination]||null}

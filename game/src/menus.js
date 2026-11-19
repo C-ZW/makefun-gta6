@@ -4,8 +4,9 @@ import {DISTRICTS} from './districts.js';
 import {WEAPONS} from './weapons.js';
 import {VEHICLES} from './vehicles.js';
 import {contactPortrait} from './portraits.js';
-import {COUNTER,rankName,buyAtGarage} from './shop.js';
+import {COUNTER,rankName,buyAtGarage,collectRide} from './shop.js';
 import {islandClock} from './hud.js';
+import {DESTINATIONS} from './activities.js';
 export const CONTROLS=[
  ['W A S D / ↑ ↓ ← →','Move or drive'],['RMB + mouse','Look around'],['LMB','Aim at cursor & fire'],['Shift','Sprint'],['E','Steal / enter / exit'],['Space','Handbrake'],['1 – 4 / R','Equip / reload'],['F / hold F','Interact / work a circuit'],['T / M','Radio station / mute'],['J / H / Esc','Journal / controls / pause']
 ];
@@ -38,10 +39,11 @@ export function menuController(g){
   if(g.menu==='title'){root.innerHTML=title(g);return}
   if(g.menu==='journal'){root.innerHTML=ledger(g);return}
   let body='',heading='',label='';
-  if(g.menu==='pause'){label='PORT VELA / SYSTEM';heading='Paused.';body='<div class="menu-buttons">'+[['resume','Resume driving'],['journal','Island journal'],['help','Controls'],['save','Save checkpoint'],['load','Load checkpoint']].map(([k,v])=>button(k,v+icon('arrow',16))).join('')+'</div>'}
+  if(g.menu==='pause'){label='PORT VELA / SYSTEM';heading='Paused.';body='<div class="menu-buttons">'+[['resume','Resume game'],['journal','Island journal'],['help','Controls'],['save','Save checkpoint'],['load','Load checkpoint']].map(([k,v])=>button(k,v+icon('arrow',16))).join('')+'</div><div class="routes"><small>SET GPS DESTINATION</small><div>'+Object.entries(DESTINATIONS).map(([id,n])=>button('route-'+id,icon('pin',12)+' '+n)).join('')+'</div></div>'}
   if(g.menu==='help'){label='FIELD MANUAL';heading='Controls.';body='<div class="bindings">'+CONTROLS.map(([k,v])=>'<div><kbd>'+k+'</kbd><span>'+v+'</span></div>').join('')+'</div>'}
   if(g.menu==='choice'){label='CHAPTER II / DOUBLE EXPOSURE';heading='One master tape.';body='<p>Choose who receives the only recording of the tide-gate deal.</p><div class="fork-options">'+[[1,'air','Go on air','Expose the deal with Sol.'],[3,'cash','Sell the tape','Take the buyout with Lio.']].map(([i,k,n,d])=>button(k,'<img src="'+contactPortrait(i)+'"><span><small>'+CONTACTS[i].name+'</small><strong>'+n+'</strong>'+d+'</span>')).join('')+'</div>'}
   if(g.menu==='shop'){label='MIRADOR MILE / WORKSHOP';heading='Palma Motors.';body='<div class="shop-balance">AVAILABLE CASH <b>$'+g.p.cash+'</b></div><div class="wares">'+COUNTER.map(i=>{const owned=i.id[0]==='w'&&g.p.weapons.includes(+i.id[1]),locked=g.p.respect<(i.rank||0);return button('buy-'+i.id,'<span><b>'+i.name+'</b><small>'+i.info+'</small></span><strong>'+(owned?'OWNED':locked?i.rank+' REP':'$'+i.price)+'</strong>',owned||locked?'dim':'')}).join('')+'</div>'}
+  if(g.menu==='shop'&&g.p.owned.length){body+='<div class="garage-keys"><label for="garage-list">GARAGE KEYS</label><select id="garage-list">'+g.p.owned.map(i=>'<option value="'+i+'">'+VEHICLES[i].name+'</option>').join('')+'</select>'+button('collect','Collect')+'</div>'}
   if(g.menu==='home'){label='MIRADOR MILE / SAFEHOUSE';heading='The spare room.';body='<p>A folding bed above the record shop. Rest here to restore health and write a checkpoint.</p>'+button('rest','Rest & save '+icon('arrow',17),'primary')}
   root.innerHTML='<section class="sheet"><header>'+wordmark+'<span>PORT VELA</span></header><article><small>'+label+'</small><h1>'+heading+'</h1>'+body+'</article><footer>'+(g.menu==='choice'?'TAPE CUSTODY / PERMANENT':button('back','← &nbsp; Return'))+'<span class="menu-status"></span></footer></section>';
  }
@@ -53,9 +55,11 @@ export function menuController(g){
   if(cmd==='resume'){close();return}if(cmd==='back'){back();return}
   if(['journal','help'].includes(cmd)){open(cmd);return}
   if(cmd==='air'||cmd==='cash'){g.missions.choose(cmd);return}
+  if(cmd.startsWith('route-')){g.destination=cmd.slice(6);close();g.notify('GPS · '+DESTINATIONS[g.destination]);return}
   if(cmd==='save'||cmd==='rest'){g.save.save(cmd==='rest');if(cmd==='rest')close();else render()}
   if(cmd==='load'){if(!g.save.restore())g.notify('No checkpoint available')}
   if(cmd.startsWith('buy-')){buyAtGarage(g,cmd.slice(4));render()}
+  if(cmd==='collect'){collectRide(g,Number(root.querySelector('#garage-list').value));return}
   const status=root.querySelector('.menu-status');if(status&&g.toast)status.textContent=g.toast.text;
  }
  root.addEventListener('click',e=>{const b=e.target.closest('button[data-act]');if(b)act(b.dataset.act)});

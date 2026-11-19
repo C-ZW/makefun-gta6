@@ -50,7 +50,7 @@ class Sculpture{
     for(const [material,b] of this.parts){
       const g=new T.BufferGeometry();
       for(const [name,data,size] of [['position',b.pos,3],['normal',b.nor,3],['uv',b.uv,2],['color',b.rgb,3]])g.setAttribute(name,new T.Float32BufferAttribute(data,size));
-      g.setIndex(b.idx);const mesh=new T.Mesh(g,material);mesh.castShadow=shadow;mesh.receiveShadow=true;group.add(mesh);
+      g.setIndex(b.idx);const mesh=new T.Mesh(g,material);mesh.castShadow=shadow&&material===surface;mesh.receiveShadow=true;group.add(mesh);
     }
     parent?.add(group);return group;
   }

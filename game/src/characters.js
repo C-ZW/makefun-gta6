@@ -16,6 +16,9 @@ function sculptHuman(kind){
  for(const k of [-1,1]){body.oval(k*.147,1.66,0,.059,.096,.067,skin);body.box(k*.063,1.70,-.151,.067,.018,.017,0x332e34)}
  if(hero){body.oval(0,1.62,.137,.21,.22,.15,0x352d2c);body.tube(0,1.48,0,.15,.172,.072,0xe9654d,10);body.box(-.1,1.34,.175,.084,.25,.035,0xe86a4b,[0,0,-.23]);body.face([[-.156,1.04,.207],[.156,1.04,.207],[.156,1.39,.218],[-.156,1.39,.218]],0xffffff,patch)}
  if(gang||kind===2){body.tube(0,1.795,0,.125,.177,.09,gang?0xcb7753:0xeee1ae);body.tube(0,1.78,-.06,.194,.194,.018,gang?0xcb7753:0xeee1ae)}
+ if(gang){body.box(0,1.24,-.182,.34,.36,.078,0x974f42);for(const k of [-1,1]){body.box(k*.109,1.26,-.229,.104,.22,.034,0xbd7651);body.box(k*.110,1.21,-.25,.11,.034,.019,0xffbe73)}body.box(0,1.70,-.153,.245,.044,.035,0x293a40)}
+ if(kind===3||kind===6){body.tube(0,.88,0,.168,.26,.27,coat,9);body.oval(0,1.63,.12,.305,.36,.17,0x4d3834)}
+ if(kind===1||kind===5){body.face([[-.15,1.43,-.105],[-.03,1.30,-.207],[0,1.45,-.174]],0xf1d4a1);body.face([[.15,1.43,-.105],[.03,1.30,-.207],[0,1.45,-.174]],0xf1d4a1)}
  const root=new T.Group();body.finish(root);
  for(const k of [-1,1]){
   const leg=sculpture();leg.beam([0,0,0],[k*.019,-.39,.01],.087,slacks);leg.beam([k*.019,-.39,.01],[k*.02,-.75,.032],.074,slacks);leg.oval(k*.02,-.77,-.042,.173,.14,.31,hero?0xe3ccab:0x453e40);
@@ -33,4 +36,8 @@ export function animateHuman(h,t,pace=0,aim=false){
  h.children[1].rotation.x=wave;h.children[3].rotation.x=-wave;h.children[2].rotation.x=-wave*.77;
  h.children[4].rotation.x=aim?1.30:wave*.77;
  h.children[0].position.y=Math.abs(Math.cos(t))*.023*Math.min(1,pace);
+}
+export function rideMotorbike(p){
+ const c=p.car,h=p.model;h.visible=true;h.position.set(c.x,p.y+.19,c.z+.12);h.rotation.set(-.16,-c.yaw,c.lean||0,'YXZ');
+ h.children[1].rotation.x=-.52;h.children[3].rotation.x=-.52;h.children[2].rotation.x=1.06;h.children[4].rotation.x=1.06;
 }

@@ -1,9 +1,10 @@
+import {ISLAND_CAST} from './characters.js';
 export const CHAPTERS=['Borrowed Sun','The Flood Line','Dead Air'];
 export const CONTACTS=[
- {name:'Inez Vale',job:'Wheelwoman',color:'#ef984e'},
- {name:'Sol Arco',job:'Pirate radio host',color:'#e7ae5e'},
- {name:'Paz Orta',job:'Dock union rep',color:'#65bcab'},
- {name:'Lio Fen',job:'Port accountant',color:'#e28b79'}
+ {name:ISLAND_CAST[0],job:'Wheelwoman',color:'#ef984e'},
+ {name:ISLAND_CAST[1],job:'Pirate radio host',color:'#e7ae5e'},
+ {name:ISLAND_CAST[2],job:'Dock union rep',color:'#65bcab'},
+ {name:ISLAND_CAST[3],job:'Port accountant',color:'#e28b79'}
 ];
 const grab=(text='Take a set of wheels')=>({kind:'car',text});
 const reach=(point,text,kind='go')=>({kind,point,text});

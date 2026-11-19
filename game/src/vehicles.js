@@ -20,6 +20,7 @@ const tailPanel=drawingMaterial(512,84,c=>{
 });
 const decal=drawingMaterial(256,64,c=>{c.fillStyle='#fce7b4';c.fillRect(0,0,256,64);c.fillStyle='#326960';for(let i=0;i<4;i++){c.beginPath();c.moveTo(8+i*15,64);c.lineTo(31+i*15,0);c.lineTo(39+i*15,0);c.lineTo(16+i*15,64);c.fill()}c.textAlign='center';c.font='italic 900 38px sans-serif';c.fillText('MARLIN',169,44)});
 const cache=new Map();
+let vehicleSerial=0;
 function hull(s,rows,c){
  for(let i=0;i<rows.length-1;i++){
    const [z,w,b,t]=rows[i],[Z,W,B,H]=rows[i+1];
@@ -86,8 +87,7 @@ export function spawnVehicle(scene,type,x,z,yaw=0,color=paints[type],role='parke
  const police=role==='patrol'||role==='block',key=[type,color,police].join('-');
  if(!cache.has(key)){const s=sculpture();if(type===5)bike(s,color);else carBody(s,type,color,police);cache.set(key,s.finish())}
  const model=cache.get(key).clone();scene.add(model);model.position.set(x,0,z);model.rotation.y=-yaw;
- const sc=sculpture();sc.oval(.10,.046,-.09,VEHICLES[type].w*1.09,.012,VEHICLES[type].l*1.04,0x413c44,undefined,ink);sc.finish(model);
- return {type,model,x,z,yaw,color,speed:0,slip:yaw,health:100,role,active:true};
+ return {id:'ride-'+(++vehicleSerial),type,model,x,z,yaw,color,speed:0,slip:yaw,lean:0,health:100,role,active:true};
 }
 export function poseCar(c,world){
  c.model.position.set(c.x,world.height(c.x,c.z),c.z);c.model.rotation.y=-c.yaw;

@@ -5,14 +5,12 @@ import {sign,glazing,asphalt} from './street-art.js';
 import {palmTree,umbrella,streetLight} from './landscaping.js';
 import {islandLandmarks} from './pier-landmarks.js';
 import {pierSignage,sailboats} from './coastal-posters.js';
+import {hillsideVilla,cargoStencil,quayGantry,serviceKiosks} from './neighborhoods.js';
 import {storeGlass} from './street-art.js';
 export function buildPortVela(scene){
  const s=sculpture(),r=seedRandom(6519),blocks=[],sand=0xf2c590,cream=0xffdfa9;
  const wall=[0xdf967d,0xd8ae91,0xecaf93,0x83afa6,0xc88289,0xe7cc9f,0xaca6b5];
  const rect=(x,y,z,w,d,c,mat)=>s.face([[x-w/2,y,z+d/2],[x+w/2,y,z+d/2],[x+w/2,y,z-d/2],[x-w/2,y,z-d/2]],c,mat);
- const shadow=new T.MeshBasicMaterial({vertexColors:true,transparent:true,opacity:.19,depthWrite:false,side:T.DoubleSide,polygonOffset:true,polygonOffsetFactor:-1});
- function blockShadow(x,z,w,d,h){const X=x+w/2,Z=z+d/2,a=h*.62,b=h*.45;
-   s.face([[x-w/2,.162,Z],[X,.162,Z-d],[X+a,.162,Z-d+b],[X+a,.162,Z+b],[x-w/2+a,.162,Z+b]],0x423448,shadow)}
  rect(0,-1.4,0,1200,1200,0x378d96);rect(0,-.32,0,263,337,sand);rect(-3,-.07,0,220,309,0xafac87);
  for(let i=0;i<450;i++){const side=i%2?1:-1;rect(side*(138+r()*220),-1.33,r()*580-290,1+r()*16,.12+r()*.3,0x80bcb4)}
  for(let i=0;i<96;i++){const a=i*Math.PI/48,b=(i+1)*Math.PI/48,rad=346;
@@ -37,7 +35,7 @@ export function buildPortVela(scene){
  }
  function building(x,z,w,d,h,k,style){
    const paint=wall[k%wall.length],left=x-w/2,right=x+w/2,front=z+d/2,back=z-d/2;
-   s.box(x,h/2,z,w,h,d,paint);blocks.push({x,z,w,d});blockShadow(x,z,w,d,h);
+   s.box(x,h/2,z,w,h,d,paint);blocks.push({x,z,w,d});
    const U=w/20,V=(h-4)/22;
    for(const [a,b,c,e,rep] of [[left,front,right,front,U],[right,front,right,back,d/20],[right,back,left,back,U],[left,back,left,front,d/20]]){
      const nx=-(e-b)*.001,nz=(c-a)*.001;
@@ -71,8 +69,9 @@ export function buildPortVela(scene){
    if(col===0&&row===3){
      rect(x,.16,z,28,28,0x91a879);s.tube(x,.65,z,3,3.2,1,cream,24);s.tube(x,1.17,z,2.65,2.65,.08,0x66c2c0,24);s.tube(x,2.3,z,.3,.7,2.3,cream);
      for(let i=0;i<6;i++)palmTree(s,x+Math.sin(i)*10,z+Math.cos(i)*10,6,i);
+   }else if(zone===3){hillsideVilla(s,x,z-4,row,blocks);k+=2;
    }else if(zone===2&&col!==2){
-     for(let i=0;i<8;i++){let X=x+(i%2-.5)*12,Z=z+(Math.floor(i/2)-1.5)*6;s.box(X,1.6,Z,10,3.2,4.8,wall[(i+k)%7]);for(let j=-4;j<=4;j++)s.box(X+j,1.6,Z+2.43,.13,3.1,.1,0x807674);blocks.push({x:X,z:Z,w:10,d:4.8})}
+     for(let i=0;i<8;i++){let X=x+(i%2-.5)*12,Z=z+(Math.floor(i/2)-1.5)*6;s.box(X,1.6,Z,10,3.2,4.8,[0x65969a,0xaa685c,0xb39763,0x6b8588][(i+k)%4]);for(let j=-4;j<=4;j++)s.box(X+j,1.6,Z+2.43,.13,3.1,.1,0x807674);cargoStencil(s,X,Z);blocks.push({x:X,z:Z,w:10,d:4.8})}
      s.beam([x,0,z],[x,21,z],.57,0xb96d47);s.beam([x-9,21,z],[x+11,21,z],.36,0xda944c);s.beam([x,25,z],[x+11,21,z],.13,0x664c46);s.beam([x,21,z],[x,25,z],.22,0x916847);
    }else{
     const tall=zone===0?13+r()*22:zone===1?7+r()*9:6+r()*7;
@@ -86,10 +85,14 @@ export function buildPortVela(scene){
  const lx=1,lz=-169;
  s.tube(lx,18,lz,1.45,2.75,36,0xebba94,14);for(const [y,a,b,h,c] of [[32,4,1.7,3,0xb58480],[35,7,4,3,cream],[37,7.2,6.9,1.2,0x526e79],[38.4,6.8,7.4,1.3,cream],[40,2.1,6.8,2.4,0xcb8273],[43,.28,.48,5,0x8c6571]])s.tube(lx,y,lz,a,b,h,c,32);
  for(let z=-145;z<149;z+=8){s.box(106,.06,z,5,.25,7.97,0xbf9675);if(z%3===0){palmTree(s,104,z,7,z);umbrella(s,116,z,0xe77669)}}
- for(let i=0;i<5;i++){const X=-82+i*31;const Z=-184-r()*55;s.box(X,7,Z,15,14,12,0xcaa5a1);s.box(X,19,Z,11,20+r()*16,9,0xb89fa1)}
+ for(let i=0;i<7;i++){const X=-104+i*31,Z=-184-r()*55,H=17+r()*32;
+  s.box(X,7,Z,16,14,14,0xcaa5a1);s.box(X,H/2+5,Z,11,H,9,0xb89fa1);
+  for(let y=9;y<H+5;y+=3.4)s.box(X,y,Z+.05,11.2,.78,9.2,0x77838c);
+  s.box(X,H+5.8,Z,8,1.6,7,0xc2a39a);if(i%2)s.tube(X,H+8,Z,.09,.19,4,0xb5a8a1);
+ }
  // A raised causeway continues west from the quay across the lagoon.
  for(let i=0;i<9;i++){const X=-101-i*6,h=bridgeHeight(X,-96);s.box(X,h-.18,-96,6.06,.36,10,0x8e8a86,[0,0,i<3?-.145:i>5?.145:0]);for(const side of [-1,1])s.box(X,h+.5,-96+side*5,6,.75,.32,cream)}
  s.box(-158,-.48,-96,18,.7,18,sand);
- islandLandmarks(s);pierSignage(s);sailboats(s);s.finish(scene,true);return {blocks,clear(x,z,pad=.4){return !blocks.some(b=>Math.abs(x-b.x)<b.w/2+pad&&Math.abs(z-b.z)<b.d/2+pad)},height:bridgeHeight};
+ islandLandmarks(s);pierSignage(s);sailboats(s);quayGantry(s);serviceKiosks(s);s.finish(scene,true);return {blocks,clear(x,z,pad=.4){return !blocks.some(b=>Math.abs(x-b.x)<b.w/2+pad&&Math.abs(z-b.z)<b.d/2+pad)},height:bridgeHeight};
 }
 function bridgeHeight(x,z){return Math.abs(z+96)<5&&x< -98?Math.max(0,Math.min(2.6,(-98-x)*.15,(x+154)*.15)):0}

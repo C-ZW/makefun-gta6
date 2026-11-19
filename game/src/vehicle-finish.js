@@ -6,8 +6,8 @@ export const windshield=drawingMaterial(384,128,c=>{
 });
 const hoodPrint=drawingMaterial(192,96,c=>{c.fillStyle='#e1d7b9';c.fillRect(0,0,192,96);c.fillStyle='#243e4a';c.textAlign='center';c.font='900 46px sans-serif';c.fillText('PVPD',96,53);c.font='bold 14px monospace';c.fillText('PORT AUTHORITY',96,75)});
 export function patrolTrim(s,w,l,h){
- const f=z=>h*.72+(z+l)/(.64*l)*h*.28+.018;
- s.face([[-w*.72,f(-l*.77),-l*.77],[w*.72,f(-l*.77),-l*.77],[w*.72,f(-l*.43),-l*.43],[-w*.72,f(-l*.43),-l*.43]],0xffffff,hoodPrint);
+ const f=z=>h*(.91+((z/l+.8)/.44)*.09)+.018;
+ s.face([[w*.72,f(-l*.77),-l*.77],[-w*.72,f(-l*.77),-l*.77],[-w*.72,f(-l*.43),-l*.43],[w*.72,f(-l*.43),-l*.43]],0xffffff,hoodPrint);
  s.box(0,.445,-l-.045,1.55,.065,.11,0xbab8a8);
  for(let i=-2;i<=2;i++)s.box(0,.53+i*.028,-l-.046,.60,.014,.060,0x899798);
  for(const k of [-1,1]){s.box(k*.38,.47,-l-.075,.065,.29,.10,0x344752);s.box(k*w*.73,.64,-l-.046,.31,.052,.043,0xfff4c8,undefined,ink)}

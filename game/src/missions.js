@@ -1,7 +1,7 @@
 import {islandStory,ENDINGS} from './story.js';
 import {spawnVehicle} from './vehicles.js';
 import {interceptRoute} from './traffic.js';
-export const MISSION_CONDITIONS=['On assignment','Case closed','Time expired','Courier lost','Crew down'];
+export const MISSION_FAILURE={timeout:'Time expired',lost:'Courier lost',down:'Crew down'};
 export function missionDirector(g){
  const m={index:0,stage:0,active:false,completed:[],branch:'',timer:0,hold:0,runner:null,enemies:[],failed:'',ending:'',choice:false,tailLost:0};
  const spec=()=>islandStory(m.branch)[m.index],stage=()=>spec()?.steps[m.stage];
@@ -25,7 +25,7 @@ export function missionDirector(g){
  function target(){
   if(!m.active)return null;const o=stage();if(m.runner)return [m.runner.x,m.runner.z];if(o.kind==='car'){const c=g.cars.filter(c=>c.active&&c.role==='parked').sort((a,b)=>Math.hypot(a.x-g.p.x,a.z-g.p.z)-Math.hypot(b.x-g.p.x,b.z-g.p.z))[0];return c?[c.x,c.z]:null}return o.point||null;
  }
- function tick(dt){if(!m.active||m.choice)return;m.timer-=dt;if(m.timer<=0){fail('Time expired');return}
+ function tick(dt){if(!m.active||m.choice)return;m.timer-=dt;if(m.timer<=0){fail(MISSION_FAILURE.timeout);return}
   const o=stage(),p=g.p,t=target(),d=t?Math.hypot(p.x-t[0],p.z-t[1]):Infinity;
   switch(o.kind){
    case 'car':if(p.car)advance();break;
@@ -36,8 +36,8 @@ export function missionDirector(g){
    case 'evade':if(g.police.heat.level===0)advance();break;
    case 'tail':case 'chase':{
     const close=o.kind==='chase'?d<12:d>=5&&d<32;
-    if(close&&p.car){m.hold+=dt;m.acquired=true}if(m.hold>(o.kind==='chase'?2:5)){advance();break}
-    m.tailLost=m.hold>0&&d>57?m.tailLost+dt:0;if(m.tailLost>8)fail('Courier lost');break;
+    if(close&&p.car)m.hold+=dt;if(m.hold>(o.kind==='chase'?2:5)){advance();break}
+    m.tailLost=m.hold>0&&d>57?m.tailLost+dt:0;if(m.tailLost>8)fail(MISSION_FAILURE.lost);break;
    }
   }
  }

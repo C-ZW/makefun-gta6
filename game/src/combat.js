@@ -27,6 +27,7 @@ export function streetCombat(g){
  function streak(from,to,c){
    const delta=to.clone().sub(from),geo=new T.CylinderGeometry(.018,.030,delta.length(),5),mat=new T.MeshBasicMaterial({color:c});
    const beam=new T.Mesh(geo,mat);beam.position.copy(from).lerp(to,.5);beam.quaternion.setFromUnitVectors(new T.Vector3(0,1,0),delta.normalize());scene.add(beam);tracers.push({beam,ttl:.105});
+   const flare=new T.Mesh(new T.OctahedronGeometry(.18,0),new T.MeshBasicMaterial({color:0xffbd5a}));flare.scale.set(1.15,1.75,.85);flare.position.copy(from).addScaledVector(delta,.24);flare.quaternion.copy(beam.quaternion);scene.add(flare);tracers.push({beam:flare,ttl:.085});
  }
  function fire(){
   if(cool>0||reload>0||g.menu)return false;const slot=p.weapon,w=WEAPONS[slot];if(slot&&!p.mag[slot]){refill();return false}
@@ -40,11 +41,11 @@ export function streetCombat(g){
    if(eligible&&far<best){hit=n;best=far}
   }
   const dest=hit?new T.Vector3(hit.x,hit.type!==undefined?.75:1.12,hit.z):ray.ray.at(w.range,new T.Vector3());
-  const origin=new T.Vector3(p.x+Math.cos(p.yaw)*.34,1.30,p.z-Math.cos(p.yaw)*.5);
+  const origin=new T.Vector3(p.x+Math.cos(p.yaw)*.29+Math.sin(p.yaw)*.78,1.32,p.z+Math.sin(p.yaw)*.29-Math.cos(p.yaw)*.78);
   if(slot)streak(origin,dest,slot===3?0xffb962:0xffe6a4);
   if(hit){hit.health=Math.max(0,hit.health-w.damage);if(hit.kind==='crew'&&!hit.health){drop(hit.x,hit.z,'ammo');p.cash+=45}
    if(hit.role==='patrol'||hit.duty==='patrol')p.crime(3);if(hit.kind==='resident')p.crime(2)}
-  if(slot){for(const n of g.people)if(distance(n,p)<25)n.fear=6;if(!hit||hit.kind!=='crew')p.crime(1)}
+  if(slot){for(const n of g.people)if(distance(n,p)<25)n.fear=6;const underFire=foes.some(e=>e.health>0&&distance(e,p)<35);if((!hit||hit.kind!=='crew')&&!underFire)p.crime(1)}
   return true;
  }
  function hurt(n){const absorb=Math.min(n,p.armor);p.armor-=absorb;p.health=Math.max(0,p.health-n+absorb);g.lastHit=.4}
@@ -67,5 +68,5 @@ export function streetCombat(g){
   }
   for(let i=tracers.length-1;i>=0;i--){const t=tracers[i];t.ttl-=dt;if(t.ttl<=0){scene.remove(t.beam);t.beam.geometry.dispose();t.beam.material.dispose();tracers.splice(i,1)}}
  }
- return {foes,gang,dismiss,drop,equip,fire,refill,tick,aim,get flashing(){return flash>0},trigger(on){firing=on;if(on)fire()},setAim(x,y){aim.set(x/innerWidth*2-1,1-y/innerHeight*2)}};
+ return {foes,gang,dismiss,drop,equip,fire,refill,tick,aim,get flashing(){return flash>0},resetInput(){cool=0;flash=0;reload=0;firing=false},trigger(on){firing=on;if(on)fire()},setAim(x,y){aim.set(x/innerWidth*2-1,1-y/innerHeight*2)}};
 }
