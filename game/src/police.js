@@ -16,7 +16,7 @@ export function patrolNetwork(scene,world,wanted) {
     car.root.visible=false;
     return {car,spec,active:false,id:i,wait:0,timer:0};
   });
-  const air=createAirSupport(scene), barriers=new T.Group(), cones=[];
+  const air=createAirSupport(scene), barriers=new T.Group();
   const box=new T.BoxGeometry(1,1,1), coneGeo=new T.ConeGeometry(.24,.64,8);
   const orange=new T.MeshBasicMaterial({color:0xf38054}), cream=new T.MeshBasicMaterial({color:0xffd894});
   const steel=new T.MeshStandardMaterial({color:0x344451});
@@ -27,7 +27,6 @@ export function patrolNetwork(scene,world,wanted) {
     const x=-7.1+i*1.48;
     part(coneGeo,orange,x,.32,0,1,1,1);part(box,cream,x,.31,0,.18,.099,.18);
     part(box,steel,x,.039,0,.47,.076,.44);
-    cones.push(x);
   }
   for(const x of [-5.3,-1.4]) part(box,steel,x,.5,.18,.14,1.0,.21);
   for(let i=0;i<8;i++) part(box,i%2?orange:cream,-5.61+i*.69,1.06,.18,.67,.34,.17).rotation.z=.11;
@@ -108,12 +107,21 @@ export function patrolNetwork(scene,world,wanted) {
           if(unit.wait>4.8&&distance>33&&wanted.state==='IN SIGHT') spawn(unit,hero);
         }
         unit.timer=Math.max(0,unit.timer-dt);
-        if(open&&distance<(hero.car?2.65:1.38)&&!unit.timer) {
-          unit.timer=1.65;car.speed*=.41;
-          if(hero.car) {
-            hero.car.speed*=boost?.71:.84;
-            hero.car.damage=Math.min(100,hero.car.damage+(boost?9:4));
-          } else hurt(boost?14:8);
+        if(open&&hero.car&&distance<4.9) {
+          const xx=car.x-hero.x,zz=car.z-hero.z;
+          const normal=Math.atan2(xx,zz);
+          const extent=c=>Math.abs(Math.cos(c.yaw-normal))*c.model.l*.42+Math.abs(Math.sin(c.yaw-normal))*c.model.w*.48;
+          const overlap=extent(car)+extent(hero.car)-distance;
+          if(overlap>0) {
+            const x=car.x+Math.sin(normal)*overlap,z=car.z+Math.cos(normal)*overlap;
+            if(world.free(x,z,.84)) {car.x=x;car.z=z;}
+            if(!unit.timer) {
+              unit.timer=1.32;car.speed*=.27;
+              hero.car.speed*=boost?.67:.83;hero.car.damage=Math.min(100,hero.car.damage+(boost?9:4));
+            }
+          }
+        } else if(open&&distance<1.45&&!unit.timer) {
+          unit.timer=1.65;car.speed*=.41;hurt(boost?14:8);
         }
         const flash=time+id*.13;
         car.sync(dt,flash);count++;

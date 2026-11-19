@@ -1,4 +1,5 @@
 import * as T from '../vendor/three.module.min.js';
+import { glowTexture } from './scenery.js';
 
 export function createEffects(scene) {
   const points=[];
@@ -8,17 +9,22 @@ export function createEffects(scene) {
   const halo=new T.MeshBasicMaterial({color:0xffd48a,transparent:true,opacity:.91});
   const powder=new T.MeshBasicMaterial({color:0xd0ae8e,transparent:true,depthWrite:false});
   const hit=new T.MeshBasicMaterial({color:0xff985d,transparent:true,depthWrite:false});
+  const bloom=new T.SpriteMaterial({map:glowTexture(),color:0xffbc60,transparent:true,depthWrite:false,blending:T.AdditiveBlending});
   const up=new T.Vector3(0,0,1);
   function add(geometry,mat,x,y,z,w,h,d,life) {
     if(points.length>=64) {
       const oldest=points.shift();scene.remove(oldest.mesh);oldest.mesh.material.dispose();
     }
-    const mesh=new T.Mesh(geometry,mat.clone());mesh.position.set(x,y,z);mesh.scale.set(w,h,d);scene.add(mesh);
+    const mesh=geometry?new T.Mesh(geometry,mat.clone()):new T.Sprite(mat.clone());
+    mesh.position.set(x,y,z);mesh.scale.set(w,h,d);scene.add(mesh);
     const fx={mesh,life,total:life,vy:0,vx:0,vz:0,spread:0,opacity:mat.opacity};
     points.push(fx);return fx;
   }
   return {
-    muzzle(x,y,z,size=.20) {add(spark,halo,x,y,z,size,size,size,.14);},
+    muzzle(x,y,z,size=.20) {
+      add(null,bloom,x,y,z,size*4,size*3,1,.13);
+      add(spark,halo,x,y,z,size*.59,size*.23,size*.68,.07);
+    },
     tracer(x,y,z,toX,toY,toZ,thick=.031) {
       const a=new T.Vector3(x,y,z),b=new T.Vector3(toX,toY,toZ).sub(a),distance=b.length();
       const f=add(line,halo,x+b.x/2,y+b.y/2,z+b.z/2,thick,thick,distance,.105);

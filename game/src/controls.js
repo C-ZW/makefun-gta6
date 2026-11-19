@@ -7,8 +7,9 @@ export const controlGuide = [
 
 export function keyboardMouse() {
   const input = {held:new Set(), pressed:new Set(), dx:0, dy:0, fire:false, aim:false};
+  let mouseReady=0;
   addEventListener('keydown', event => {
-    if (event.code === 'Tab' || event.code === 'Space') event.preventDefault();
+    if (event.code==='Space' && !event.target.closest?.('button')) event.preventDefault();
     if (!input.held.has(event.code)) input.pressed.add(event.code);
     input.held.add(event.code);
   });
@@ -16,8 +17,14 @@ export function keyboardMouse() {
   addEventListener('blur', () => {
     input.held.clear(); input.pressed.clear(); input.fire=false; input.aim=false;
   });
+  addEventListener('pointerlockchange',()=>{
+    input.dx=input.dy=0;
+    mouseReady=performance.now()+120;
+  });
   addEventListener('mousemove', event => {
-    if (document.pointerLockElement) { input.dx+=event.movementX; input.dy+=event.movementY; }
+    if(!document.pointerLockElement||performance.now()<mouseReady) return;
+    if(Math.abs(event.movementX)>100||Math.abs(event.movementY)>100) return;
+    input.dx+=event.movementX;input.dy+=event.movementY;
   });
   addEventListener('mousedown', event => {
     if (!document.pointerLockElement) return;

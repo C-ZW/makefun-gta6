@@ -1,6 +1,6 @@
 import * as T from '../vendor/three.module.min.js';
 import { cast, portraitFor } from './characters.js';
-import { chapters, sideJobs } from './story.js';
+import { sideJobs } from './story.js';
 import { responseTiers } from './wanted-level.js';
 import { createMinimap } from './minimap.js';
 import { signposts } from './districts.js';
@@ -24,17 +24,13 @@ function drawWeapon(canvas,slot) {
   canvas.currentSlot=slot;
   const c=canvas.getContext('2d'); c.clearRect(0,0,100,40);
   const silhouettes=[
-    [[20,29],[24,21],[30,22],[31,14],[38,11],[43,14],[47,11],[53,14],[59,12],[64,17],[72,17],[78,22],[72,34],[44,35],[37,32],[25,35]],
-    [[13,10],[80,10],[81,21],[60,21],[54,30],[45,30],[51,22],[43,22],[36,38],[25,38],[29,23],[15,22]],
-    [[9,18],[22,18],[25,12],[63,12],[65,10],[77,10],[77,14],[95,14],[95,20],[73,20],[67,25],[59,25],[64,37],[52,37],[46,24],[33,24],[31,35],[22,35],[23,23],[9,26]],
-    [[5,24],[24,19],[32,18],[38,14],[94,14],[94,20],[78,20],[78,23],[44,23],[36,30],[27,27],[9,34]]
+    [[21,32],[24,22],[38,12],[48,16],[54,12],[62,16],[73,18],[78,25],[68,34],[36,35]],
+    [[13,10],[80,10],[81,21],[60,21],[54,29],[45,29],[49,22],[43,22],[37,38],[25,38],[29,23],[15,22]],
+    [[9,18],[24,16],[28,11],[74,11],[75,14],[95,14],[95,20],[62,25],[64,37],[52,37],[46,24],[33,24],[31,35],[22,35],[23,23],[9,26]],
+    [[5,24],[24,19],[38,14],[94,14],[94,20],[78,20],[78,23],[44,23],[36,30],[27,27],[9,34]]
   ];
   c.beginPath();silhouettes[slot].forEach(([x,y],i)=>i?c.lineTo(x,y):c.moveTo(x,y));c.closePath();
   c.fillStyle='#f2dca9';c.fill();
-  c.fillStyle='#a4ad96';
-  if(slot===1) c.fillRect(19,13,52,3);
-  if(slot===2) c.fillRect(26,15,42,3);
-  if(slot===3) c.fillRect(43,17,31,2);
 }
 
 export function createHUD(element,world) {
@@ -66,13 +62,12 @@ export function createHUD(element,world) {
       const active=!!missions.active;
       const title=stage?.title??job?.name??'Free roam';
       const index=job?.chapter===-1?'SIDE JOB':job?'CHAPTER '+String(job.chapter+1).padStart(2,'0'):'STORY COMPLETE';
-      const detail=active?job.name:job?chapters[job.chapter]:'Your island. Your rules.';
-      let hint=stage?.hint??(job?'Meet '+cast[job.contact].name:'Races and deliveries are open');
+      let hint=stage?.hint??(stage?'On foot · F to interact':job?'Meet '+cast[job.contact].name:'Races and deliveries are open');
       if(missions.subject&&stage?.type==='tail') hint+='  ·  SUSPICION '+Math.round(missions.suspicion/6.5*100)+'%';
       if(stage?.type==='fight'&&missions.started) hint=combat.count()+' CREW REMAINING  /  '+hint;
       if(stage?.type==='checkpoints') hint='GATE '+Math.min(missions.gate+1,stage.route.length)+' / '+stage.route.length+'  ·  '+hint;
       setHTML(nodes.objective,`<div class="kicker"><span>${index}</span><span>${active?'STAGE '+(missions.stage+1)+' / '+job.stages.length:job?'AVAILABLE':''}</span></div>
-        ${active?'<div class="objective-job">'+detail+'</div>':''}<strong>${title}</strong><div class="objective-hint">${hint}</div>
+        ${active?'<div class="objective-job">'+job.name+'</div>':''}<strong>${title}</strong><div class="objective-hint">${hint}</div>
         <div class="objective-meta">${missions.timer!==null?'<span class="clock">'+timeText(missions.timer)+'</span>':''}${target?'<span>◆ '+dist+' M</span>':''}</div>`);
       setHTML(nodes.heat,`<div class="wanted-stars" aria-label="${wanted.stars} of 5 wanted stars">${'★'.repeat(wanted.stars)}<i>${'★'.repeat(5-wanted.stars)}</i></div>
         <div class="wanted-state ${wanted.stars?'hot':''}"><span>${wanted.state}</span>${wanted.timer>0?'<b>'+timeText(wanted.timer)+'</b>':''}</div>`);
@@ -116,7 +111,7 @@ export function createHUD(element,world) {
       if(prompt) setHTML(nodes.prompt,`<kbd>${key}</kbd> ${prompt}`);
       nodes.prompt.classList.toggle('raised',!!line);
       nodes.waypoint.hidden=true;
-      if(target&&dist>3&&dist<115&&world.lineClear(hero.x,hero.z,target.x,target.z)) {
+      if(target&&stage?.type!=='escape'&&dist>3&&dist<115&&world.lineClear(hero.x,hero.z,target.x,target.z)) {
         projected.set(target.x,4.12,target.z).project(camera);
         if(projected.z<1&&Math.abs(projected.x)<.94&&Math.abs(projected.y)<.85) {
           nodes.waypoint.hidden=false;

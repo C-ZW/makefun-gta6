@@ -1,8 +1,8 @@
 export const weapons = [
-  {id:'hands',name:'Bare Knuckles',short:'HANDS',glyph:'✦', clip:0,pool:0,damage:34,delay:.43,range:2.7,spread:0,price:0,rank:0},
-  {id:'pistol',name:'Signet .38',short:'PISTOL',glyph:'▰', clip:10,pool:52,damage:47,delay:.26,range:71,spread:.012,price:240,rank:0},
-  {id:'smg',name:'Lockjaw 9',short:'SMG',glyph:'▰', clip:26,pool:100,damage:27,delay:.097,range:63,spread:.025,price:850,rank:18},
-  {id:'shotgun',name:'Breakwater 12',short:'SHOTGUN',glyph:'▰', clip:6,pool:32,damage:104,delay:.66,range:27,spread:.072,price:1350,rank:36}
+  {id:'hands',name:'Bare Knuckles',short:'HANDS',clip:0,pool:0,damage:34,delay:.43,range:2.7,spread:0,price:0,rank:0},
+  {id:'pistol',name:'Signet .38',short:'PISTOL',clip:10,pool:52,damage:47,delay:.26,range:71,spread:.012,price:240,rank:0},
+  {id:'smg',name:'Lockjaw 9',short:'SMG',clip:26,pool:100,damage:27,delay:.097,range:63,spread:.025,price:850,rank:18},
+  {id:'shotgun',name:'Breakwater 12',short:'SHOTGUN',clip:6,pool:32,damage:104,delay:.66,range:27,spread:.072,price:1350,rank:36}
 ];
 
 export function equipment() {

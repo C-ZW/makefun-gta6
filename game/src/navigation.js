@@ -4,6 +4,7 @@ export const nearestTo = (values,value) => values.reduce((best,p)=>Math.abs(p-va
 
 export function streetRoute(a,b,world) {
   if(Math.hypot(a.x-b.x,a.z-b.z)<33 && world.lineClear(a.x,a.z,b.x,b.z)) return [[a.x,a.z],[b.x,b.z]];
+  if(a.x<-220&&b.x<-220) return [[a.x,a.z],[b.x,b.z]];
   const ax=nearestTo(avenues,a.x), az=nearestTo(streets,a.z);
   const bx=nearestTo(avenues,b.x), bz=nearestTo(streets,b.z);
   if(a.x<-198||b.x<-198) {

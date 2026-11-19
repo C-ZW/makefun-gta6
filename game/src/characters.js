@@ -54,7 +54,7 @@ export function makeCharacter(scene, palette=cast.ren, detail=false) {
     part(arm,round,skin,0,-.448,-.019,.074,.10,.071);
   }
   const gun=part(arms[1],box,0x252b2d,0,-.469,-.12,.065,.075,.28);
-  gun.visible=false;
+  gun.visible=false;gun.rotation.x=-1.47;
   group.add(shadowDisc(.41,.36,.35));
   scene.add(group);
   return {group,rig,top,arms,legs,gun,stride:0,

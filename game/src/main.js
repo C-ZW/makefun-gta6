@@ -51,8 +51,10 @@ const gear=equipment(), effects=createEffects(scene);
 const hud=createHUD(document.getElementById('hud'),world);
 const local=localCheckpoint();
 const audio=createBellcoveAudio(), radio=synthRadio(audio);
+let needsDraw=true;
 const notify=(...args)=>{
   hud.notice(...args);
+  needsDraw=true;
   if(args[0]==='COMPLETE') audio.sound('complete');
 };
 const shop=makoCounter(hero,gear,()=>{
@@ -70,7 +72,7 @@ function hurt(amount) {
   cameraRig.shake=.16;
 }
 const combat=createCombat(scene,world,hero,gear,civilians,effects,{report,hurt,sound:(...args)=>audio.sound(...args)});
-const missions=missionDirector(scene,world,hero,input,{
+const missions=missionDirector(scene,hero,{
   wanted,report,notice:notify,grant:id=>gear.grant(id),
   spawnEnemies:(p,n)=>combat.spawn(p,n),countEnemies:()=>combat.count(),
   dismissEnemies:()=>combat.dismiss(),checkpoint:save,
@@ -119,6 +121,7 @@ function lock() {
 }
 function setMode(next) {
   mode=next;
+  needsDraw=true;
   if(next!=='play'&&document.pointerLockElement) document.exitPointerLock();
   input.fire=false;input.aim=false;
   menus.render(next);
@@ -169,6 +172,7 @@ function menuKeys() {
 function resize() {
   camera.aspect=innerWidth/innerHeight; camera.updateProjectionMatrix();
   renderer.setSize(innerWidth,innerHeight);
+  needsDraw=true;
 }
 resize();
 addEventListener('resize',resize);
@@ -176,7 +180,10 @@ function step(dt) {
   menuKeys();
   if(mode!=='play') {input.end();return;}
   elapsed+=dt;
-  if(input.take('KeyQ')) notify('BELLCOVE RADIO',radio.cycle(),'Q TO TUNE');
+  if(input.take('KeyQ')) {
+    const station=radio.cycle();
+    if(!hero.car) notify('BELLCOVE RADIO',station,'Q TO TUNE');
+  }
   if(input.take('KeyF')&&!missions.interact()) {
     if(safe.nearby()&&!wanted.stars) safe.use();
     else if(!hero.car&&Math.hypot(hero.x-signposts.shop.x,hero.z-signposts.shop.z)<6.3) setMode('shop');
@@ -222,7 +229,10 @@ function step(dt) {
     hero.x=hero.car.x;hero.z=hero.car.z;hero.yaw=hero.car.yaw;
   } else {
     const speed=moveOnFoot(hero,input,cameraRig,world,dt);
-    hero.model.pose(hero.x,hero.z,hero.yaw,speed,dt,gear.weapon.clip>0&&(input.aim||input.fire));
+    const aim=input.aim||input.fire;
+    hero.model.pose(hero.x,hero.z,hero.yaw,speed,dt,aim);
+    hero.model.gun.visible=aim&&gear.slot>0;
+    hero.model.gun.scale.z=[.10,.28,.49,.68][gear.slot];
   }
   hero.model.group.visible=!hero.car||hero.car.type==='dart';
   if(hero.car?.type==='dart') {
@@ -264,6 +274,7 @@ function step(dt) {
   input.end();
 }
 function draw() {
+  needsDraw=false;
   camera.updateMatrixWorld();
   audio.update(elapsed,hero,police,mode==='play',mode==='play'&&input.down('KeyW'));
   radio.update(mode==='play'&&!!hero.car,wanted.stars?.74:1);
@@ -277,7 +288,7 @@ function frame(ms) {
   bank += Math.min(.08,(ms-last)/1000);
   last=ms;
   while (bank >= fixed) { step(fixed); bank-=fixed; }
-  draw();
+  if(mode==='play'||needsDraw) draw();
 }
 hero.model.pose(hero.x,hero.z,hero.yaw,0,0);
 cameraRig.update(fixed,hero,null,world,input);

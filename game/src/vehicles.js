@@ -1,5 +1,5 @@
 import * as T from '../vendor/three.module.min.js';
-import { shadowDisc } from './scenery.js';
+import { shadowDisc, glowTexture } from './scenery.js';
 
 export const vehicleCatalog = {
   pica:    { name:'Pica C2', kind:'Compact',  max:28, push:10, brake:21, turn:2.15, grip:7.4, mass:.8,  w:1.62,l:3.55,roof:1.49,color:0x84bfae },
@@ -18,6 +18,7 @@ const box = new T.BoxGeometry(1,1,1);
 const wheel = new T.CylinderGeometry(1,1,1,12);
 wheel.rotateZ(Math.PI/2);
 const mats = new Map();
+let corona;
 function matte(color) {
   if (!mats.has(color)) mats.set(color,new T.MeshStandardMaterial({color,roughness:.77}));
   return mats.get(color);
@@ -78,6 +79,7 @@ export function makeVehicle(scene, type, x,z,yaw=0, options={}) {
   const model = vehicleCatalog[type] ?? motorPool[type];
   const root=new T.Group(), body=new T.Group();
   const paint=new T.MeshStandardMaterial({color:options.color??model.color,metalness:.19,roughness:.37,vertexColors:true,side:T.DoubleSide});
+  const roofPaint=paint.clone();roofPaint.vertexColors=false;
   const w=model.w,l=model.l, bike=type==='dart', tall=type==='gull', pickup=type==='mesa', sport=type==='kestrel'||type==='interceptor';
   const h=bike?.77:(tall?.98:(pickup?1.05:(sport?.68:.79)));
   const axis=l*(bike?.39:.327), tire=bike?.31:(pickup?.42:(tall?.38:.32));
@@ -96,7 +98,7 @@ export function makeVehicle(scene, type, x,z,yaw=0, options={}) {
     ]),new T.MeshStandardMaterial({color:0x38606f,roughness:.23,metalness:.15,vertexColors:true,side:T.DoubleSide}));
     body.add(windshield);
     const roofLen=(to-from-.235)*l;
-    part(body,box,matte(options.color??model.color),0,model.roof-.01,l*(from+to)*.5,w*.67,.085,roofLen+.04);
+    part(body,box,roofPaint,0,model.roof-.01,l*(from+to)*.5,w*.67,.085,roofLen+.04);
     for (const side of [-1,1]) {
       const pillar=part(body,box,black,w*.395*side,(model.roof+h)/2,.16,w*.06,model.roof-h+.05,.083);
       pillar.rotation.z=-side*.20;
@@ -105,7 +107,7 @@ export function makeVehicle(scene, type, x,z,yaw=0, options={}) {
       part(body,box,frontGlow,w*.308*side,h-.164,-l*.49,w*.27,.109,.075);
       part(body,box,rearGlow,w*.313*side,h-.165,l*.491,w*.282,.118,.06);
       part(body,box,lit(0xfca07b),w*.314*side,h-.132,l*.5,w*.235,.026,.026);
-      if(pickup) part(body,box,matte(options.color??model.color),w*.43*side,h+.17,l*.315,.17,.35,l*.37);
+      if(pickup) part(body,box,roofPaint,w*.43*side,h+.17,l*.315,.17,.35,l*.37);
       if (sport) part(body,box,black,w*.31*side,h+.09,l*.405,.085,.28,.14);
     }
     if(sport) part(body,box,matte(0x242b33),0,h+.24,l*.423,w*.93,.065,.36);
@@ -114,7 +116,7 @@ export function makeVehicle(scene, type, x,z,yaw=0, options={}) {
     const id = type==='patrol'||type==='interceptor'?'BC · 09':sport?'KSTRL':'BC · 48';
     const badge=new T.Mesh(new T.PlaneGeometry(w*.31,.143),plate(id));
     badge.position.set(0,h-.266,l*.534); body.add(badge);
-    if (tall) part(body,box,matte(options.color??model.color),0,1.65,l*.19,w*.94,1.23,l*.53);
+    if (tall) part(body,box,roofPaint,0,1.65,l*.19,w*.94,1.23,l*.53);
   } else {
     part(body,box,black,0,.82,l*.13,w*.76,.16,.63);
     part(body,box,glass,0,1.04,-l*.19,w*.65,.26,.24).rotation.x=-.34;
@@ -131,7 +133,7 @@ export function makeVehicle(scene, type, x,z,yaw=0, options={}) {
     tires.push({mount,rub,rim,front:zSide<0});
   }
   const unmarked=type in vehicleCatalog;
-  let flash;
+  let flash, halos;
   if (!unmarked) {
     const label=plate('TIDEGUARD');
     for(const side of [-1,1]) {
@@ -143,6 +145,13 @@ export function makeVehicle(scene, type, x,z,yaw=0, options={}) {
     part(body,box,black,0,y-.065,z,w*.66,.07,.26);
     flash=[part(body,box,lit(0xff5149),-w*.157,y,z,w*.304,.135,.249),
       part(body,box,lit(0x62bdff),w*.157,y,z,w*.304,.135,.249)];
+    corona??=glowTexture();
+    halos=flash.map((bar,i)=>{
+      const halo=new T.Sprite(new T.SpriteMaterial({map:corona,color:i?0x2e9dff:0xff301f,blending:T.AdditiveBlending,depthWrite:false,opacity:.75}));
+      halo.position.copy(bar.position);halo.scale.set(1.68,1,1);body.add(halo);return halo;
+    });
+    const plateFront=new T.Mesh(new T.PlaneGeometry(w*.67,.15),label);
+    plateFront.position.set(0,h-.245,-l*.503);plateFront.rotation.y=Math.PI;body.add(plateFront);
   }
   const shadow=shadowDisc(w*.70,l*.54,.43);
   root.add(shadow); scene.add(root);
@@ -161,10 +170,11 @@ export function makeVehicle(scene, type, x,z,yaw=0, options={}) {
       if(flash) {
         flash[0].visible=Math.floor(time*8)%4!==2;
         flash[1].visible=Math.floor(time*8+2)%4!==2;
+        halos.forEach((halo,i)=>{halo.visible=flash[i].visible;});
       }
     },
     repaint(color) {
-      paint.color.set(color);
+      paint.color.set(color);roofPaint.color.set(color);
       this.color=color;
     }
   };

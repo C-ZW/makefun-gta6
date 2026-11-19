@@ -6,7 +6,7 @@ export const missionStageTypes = ['vehicle','drive','interact','tail','chase','c
 const point=at=>at?{x:at[0],z:at[1]}:null;
 const distance=(a,b)=>Math.hypot(a.x-b.x,a.z-b.z);
 
-export function missionDirector(scene,world,hero,input,services) {
+export function missionDirector(scene,hero,services) {
   const beacon=objectiveBeacon(scene);
   const target=makeVehicle(scene,'mesa',0,0,0,{color:0x547483});
   target.root.visible=false;
@@ -79,7 +79,6 @@ export function missionDirector(scene,world,hero,input,services) {
       services.notice('JOB FAILED',reason,'Return to the contact to retry');
     },
     targetPoint() {
-      if(this.current?.type==='escape') return null;
       if(this.subject) return target;
       return this.currentAt??point(this.next?.start);
     },
@@ -108,7 +107,6 @@ export function missionDirector(scene,world,hero,input,services) {
         }
         if(s.type==='choice') {
           if(!hero.car&&distance(hero,this.currentAt)<5.8) this.started=true;
-          if(this.started) for(const choice of storyChoice) if(input.take(choice.key)) this.choose(choice.id);
         }
         if(s.type==='vehicle'&&hero.car&&(!s.vehicle||hero.car.type===s.vehicle)) this.advance();
         if(s.type==='drive'&&hero.car&&(!s.vehicle||hero.car.type===s.vehicle)&&distance(hero,this.currentAt)<(s.arrival??6)&&Math.abs(hero.car.speed)<8) this.advance();

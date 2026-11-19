@@ -43,8 +43,13 @@ export function createAirSupport(scene) {
     fragmentShader:`uniform float strength; varying vec2 coords;
     void main(){gl_FragColor=vec4(1.,.80,.48,strength*(.18+.82*coords.y)*(.66+.34*sin(coords.x*6.283)*sin(coords.x*6.283)));}`
   }));
-  const surface=new T.Mesh(new T.CircleGeometry(1,32),new T.MeshBasicMaterial({
-    color:0xffd79f,opacity:.22,transparent:true,depthWrite:false,blending:T.AdditiveBlending
+  const surface=new T.Mesh(new T.PlaneGeometry(2,2),new T.ShaderMaterial({
+    transparent:true,depthWrite:false,blending:T.AdditiveBlending,
+    vertexShader:beam.material.vertexShader,
+    fragmentShader:`varying vec2 coords; void main(){
+      float edge=1.-smoothstep(.15,.49,length(coords-.5));
+      gl_FragColor=vec4(1.,.80,.52,edge*.36);
+    }`
   }));
   surface.rotation.x=-Math.PI/2;
   const light = new T.SpotLight(0xffd697,165,46,.31,.68,1.6);
@@ -60,21 +65,22 @@ export function createAirSupport(scene) {
       }
       const t=this.phase+=dt*.25;
       const sight=wanted.state==='IN SIGHT';
-      const tx=wanted.x,tz=wanted.z;
-      const ox=Math.cos(t)*10,oz=-28+Math.sin(t)*11;
+      const tx=wanted.x+(sight?(hero.car?.vx??0)*.72:0);
+      const tz=wanted.z+(sight?(hero.car?.vz??0)*.72:0);
+      const ox=Math.cos(t)*7.4,oz=-32+Math.sin(t)*10;
       if(!this.on) {
         this.x=tx+ox;this.z=tz+oz;this.lx=tx;this.lz=tz;
       }
       this.on=true;
       const a=1-Math.exp(-dt*1.6);
       this.x+=(tx+ox-this.x)*a;this.z+=(tz+oz-this.z)*a;
-      this.y=13.1+Math.sin(t*1.5)*1.75;
+      this.y=12.2+Math.sin(t*1.5)*1.65;
       const off=sight?0:24;
       this.lx+=(tx+Math.sin(t*2.6)*off-this.lx)*a;
       this.lz+=(tz+Math.cos(t*2.6)*off-this.lz)*a;
       root.visible=beam.visible=surface.visible=light.visible=true;
       root.position.set(this.x,this.y,this.z);
-      root.rotation.y=-.55+Math.sin(t)*.21;
+      root.rotation.y=1.05+Math.sin(t)*.34;
       craft.rotation.z=Math.sin(t*2)*.12;craft.rotation.x=.075;
       rotor.rotation.y+=dt*39;tail.rotation.x+=dt*59;
       anchor.set(this.x,this.y-.81,this.z-1.65);
@@ -82,9 +88,9 @@ export function createAirSupport(scene) {
       const distance=anchor.distanceTo(ground);
       beam.position.copy(anchor).lerp(ground,.5);
       beam.quaternion.setFromUnitVectors(up,anchor.clone().sub(ground).normalize());
-      beam.scale.set(distance*.24,distance,distance*.24);
-      beam.material.uniforms.strength.value=night?.45:.29;
-      surface.position.copy(ground);surface.scale.setScalar(distance*.24);
+      beam.scale.set(distance*.101,distance,distance*.101);
+      beam.material.uniforms.strength.value=night?.58:.43;
+      surface.position.copy(ground);surface.scale.setScalar(distance*.113);
       light.position.copy(anchor);light.target.position.copy(ground);light.target.updateMatrixWorld();
     },
     sees(hero,world) {

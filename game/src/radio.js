@@ -7,30 +7,24 @@ const frequency = midi => 440*2**((midi-69)/12);
 
 export function synthRadio(audio) {
   let index=-1, beat=0, next=0, bus=null;
-  function tone(at,midi,amp,duration,wave,cutoff) {
-    const context=audio.context, osc=context.createOscillator(), gain=context.createGain(), filter=context.createBiquadFilter();
-    osc.type=wave;osc.frequency.value=frequency(midi);
-    filter.frequency.value=cutoff;
-    gain.gain.setValueAtTime(.0001,at);
-    gain.gain.exponentialRampToValueAtTime(amp,at+.019);
-    gain.gain.exponentialRampToValueAtTime(.0001,at+duration);
-    osc.connect(filter).connect(gain).connect(bus);
-    osc.start(at);osc.stop(at+duration+.025);
+  function tone(at,midi,volume,duration,wave) {
+    const from=frequency(midi);
+    audio.transient(at,{from,to:from*.996,volume,duration,wave},bus);
   }
   function pulse(station,at,i) {
     const bar=Math.floor(i/16), s=i%16, chord=station.chords[bar%4], root=station.root+chord;
     const tun=60/station.tempo/4;
     if(s%4===0 || (station.offbeat&&s%8===6)) {
-      tone(at,root-13+(s===12?7:0),.15,tun*2.1,'triangle',560);
+      tone(at,root-13+(s===12?7:0),.14,tun*2.1,'triangle');
       audio.percussion(at,s%8===0?'kick':'snare',bus);
     }
     if(s%2===0) audio.percussion(at,'hat',bus);
     if(s%4===0||s%8===5||(station.tempo>115&&s%4===2)) {
       const note=station.motif[(i+bar*3)%station.motif.length];
-      tone(at,root+12+note,.093,tun*(station.tempo<93?4:1.85),station.voice,station.voice==='square'?960:2700);
+      tone(at,root+12+note,station.voice==='square'?.035:.09,tun*(station.tempo<93?4:1.85),station.voice);
     }
     if(s===0||s===8) {
-      for(const n of [0,station.tempo===103?4:3,7,10]) tone(at+n*.003,root+n,.027,tun*7,'triangle',1060);
+      for(const n of [0,station.tempo===103?4:3,7,10]) tone(at+n*.003,root+n,.027,tun*7,'triangle');
     }
   }
   return {
@@ -38,21 +32,15 @@ export function synthRadio(audio) {
     cycle() {
       index=(index+2)%(radioStations.length+1)-1;
       next=0;beat=0;
-      if(bus) {
-        const current=audio.context.currentTime;
-        bus.gain.cancelScheduledValues(current);
-        bus.gain.setTargetAtTime(.0001,current,.05);
-        bus=null;
-      }
       return this.station;
     },
     update(active,volume=1) {
       const s=radioStations[index], cx=audio.context;
-      if(!cx||!s) return;
+      if(!cx) return;
       const t=cx.currentTime;
       if(!bus) {bus=cx.createGain();bus.gain.value=0;bus.connect(audio.master);}
-      bus.gain.setTargetAtTime(active?.24*volume:.0001,t,.075);
-      if(!active) {next=0;return;}
+      bus.gain.setTargetAtTime(active&&s ? .24*volume : .0001,t,.075);
+      if(!active||!s) {next=0;return;}
       if(next<t-.02) next=t+.035;
       while(next<t+.17) {
         pulse(s,next,beat++);

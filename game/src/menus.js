@@ -32,7 +32,7 @@ export function createMenus(element,state,action) {
       if(mode==='start') {
         element.innerHTML=`
           <section class="title-screen">
-            <div class="title-label">${mark}<div>BELLCOVE ISLAND<small>02 / COASTAL DISTRICT</small></div></div>
+            <div class="title-label">${mark} BELLCOVE ISLAND</div>
             <div class="title-body">
               <div class="title-eyebrow">A BELLCOVE CRIME STORY</div>
               <h1>AFTER<span>TIDE</span></h1>
@@ -43,7 +43,6 @@ export function createMenus(element,state,action) {
                 ${button('controls','Controls','quiet')}
               </div>
             </div>
-            <div class="title-footer"><span>CHAPTER I <b>A Favor at Low Tide</b></span><span>OPEN WORLD / STORY CAMPAIGN</span></div>
           </section>`;
         return;
       }
@@ -56,7 +55,7 @@ export function createMenus(element,state,action) {
       if(mode==='controls') {
         element.innerHTML=closed('Controls','KEYBOARD & MOUSE',`
           <div class="controls-grid">${controlGuide.map(([keys,label])=>`<div><kbd>${keys}</kbd><span>${label}</span></div>`).join('')}</div>
-          <p class="menu-note">Click the game to capture the mouse. Hold the right button for precise aim. Slow down before stepping out of a vehicle.</p>`);
+          <p class="menu-note">Click the game to capture the mouse. Slow down before stepping out of a vehicle.</p>`);
         return;
       }
       if(mode==='choice') {
@@ -114,7 +113,7 @@ export function createMenus(element,state,action) {
             <article><small>CHAPTER 0${ch+1}</small><h2>${chapter}</h2>
             ${campaign.map((base,i)=>({job:resolveMission(base,missions.branch),i})).filter(v=>v.job.chapter===ch).map(({job,i})=>{
               const done=missions.completed.includes(job.id), live=i===missions.index;
-              const status=done?'COMPLETE':live?'CURRENT':baseStatus(job);
+              const status=done?'COMPLETE':live?'CURRENT':job.routes?'BRANCH JOB':'LOCKED';
               return `<div class="journal-job ${done?'done':live?'live':''}"><strong>${String(i+1).padStart(2,'0')} &nbsp; ${job.name}</strong><small>${status}</small></div>`;
             }).join('')}</article>`).join('')}</div>
         </div>
@@ -125,8 +124,4 @@ export function createMenus(element,state,action) {
         </div>`);
     }
   };
-}
-
-function baseStatus(job) {
-  return job.routes?'BRANCH JOB':'LOCKED';
 }

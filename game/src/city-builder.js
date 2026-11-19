@@ -63,7 +63,7 @@ export function buildBellcove(scene) {
     const sizeX=r-l-20, sizeZ=s-n-20;
     if(sizeX<9||sizeZ<9) continue;
     slab(industrial?0xaca594:hill?0xcac5a1:0xd4bca3,cx,cz,sizeX,sizeZ,.17);
-    if(park) { buildPark(batch,cx,cz,rand); continue; }
+    if(park) { buildPark(batch,solids,cx,cz,rand); continue; }
     if(industrial) { buildWharf(batch,scene,solids,cx,cz,sizeX,sizeZ,rand); continue; }
     const wide=sizeX>40, deep=sizeZ>40;
     for(const ox of wide?[-14,14]:[0]) for(const oz of deep?[-14,14]:[0]) {
@@ -105,6 +105,24 @@ export function buildBellcove(scene) {
     p('box',0x486972,196,1.04,z,.13,.13,3.3);
     if(z%5<1) p('box',0xf2d3a6,196,1.11,z,.2,.09,.26,0,0,0,true);
   }
+  for(let z=-211;z<231;z+=16) {
+    for(const x of [171.3,190.8]) {
+      p('box',0xbb8e71,x,.14,z,1.7,.075,1.7,.78);
+      p('box',0xf1cf9a,x,.18,z,.62,.025,.62,.78);
+    }
+    if(streets.some(s=>Math.abs(z-s)<15)||Math.abs(z-99)<10) continue;
+    if(z%3) {
+      for(const d of [-.74,.74]) p('box',0x405251,188,.32,z+d,.56,.32,.14);
+      for(const d of [-.21,0,.21]) p('box',0x97664f,188+d,.50,z,.14,.12,2.0);
+      p('box',0xa57859,188.23,.77,z,.093,.17,1.98,0,0,.18);
+    }
+  }
+  for(const [x,z,c] of [[184,43,0xd97958],[185,53,0x569a91],[185,65,0xd6ae68],[180,12,0xcd866b]]) {
+    p('round',0x806759,x,1.26,z,.065,2.55,.065);
+    p('taper',c,x,2.48,z,2.5,.45,2.5);
+    p('round',0xd7be99,x,.91,z,.91,.095,.91);
+    p('shade',0x49384a,x-1.2,.169,z+1.5,3.2,4.2,1,-.43,-Math.PI/2);
+  }
   for(let z=-210;z<222;z+=16) {
     const x=202+rand()*5;
     p('round',0xd4b094,x,.77,z,.065,1.57,.065);
@@ -140,7 +158,7 @@ export function buildBellcove(scene) {
   };
 }
 
-function buildPark(batch,x,z,rand) {
+function buildPark(batch,solids,x,z,rand) {
   const p=batch.part;
   p('box',0x879b65,x,.16,z,56,.32,56);
   for(const [w,d] of [[54,5],[5,54]]) p('box',0xe2c49d,x,.33,z,w,.12,d);
@@ -148,10 +166,12 @@ function buildPark(batch,x,z,rand) {
   p('round',0x5d9a9d,x,.75,z,7.4,.08,7.4);
   p('taper',0xe2bc90,x,1,z,2,1.35,2);
   p('ball',0x91d3bd,x,1.9,z,.6,1,.6);
+  solids.push({x,z,w:1.58,d:1.58});
   for(let i=0;i<14;i++) {
     const a=rand()*7,r=13+rand()*11,px=x+Math.sin(a)*r,pz=z+Math.cos(a)*r;
     p('round',0x826953,px,1.48,pz,.33,2.96,.32);
-    p('ball',i%2?0x81965c:0xa1a167,px,4.1,pz,3.8,2.7,3.3);
+    p('ball',i%2?0x81965c:0xa1a167,px,5.0,pz,2.8,1.85,2.4);
+    p('ball',i%2?0x9ba761:0xb0aa72,px+.92,5.55,pz-.17,1.86,1.41,1.83);
   }
 }
 
